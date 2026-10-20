@@ -658,6 +658,13 @@ if (!room || !room.room_id || !room.room_code) {
 
 state.roomId = room.room_id;
 state.roomCode = room.room_code;
+   state.room = {
+  id: room.room_id,
+  code: room.room_code
+};
+
+state.isHost = true;
+ 
 
 $("lobbyCode").textContent = room.room_code;
 $("lobbyCount").textContent = "1 joueur";
