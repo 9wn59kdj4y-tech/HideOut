@@ -649,18 +649,17 @@ $("createRoomBtn").addEventListener("click", async () => {
   if (error) throw error;
 
   console.log("Salon créé :", data);
-   alert("Réponse Supabase : " + JSON.stringify(data));
 
 const room = Array.isArray(data) ? data[0] : data;
 
-if (!room || !room.id || !room.code) {
-  throw new Error("Le salon a été créé, mais ses informations sont incomplètes.");
+if (!room || !room.room_id || !room.room_code) {
+  throw new Error("Les informations du salon sont incomplètes.");
 }
 
-state.roomId = room.id;
-state.roomCode = room.code;
+state.roomId = room.room_id;
+state.roomCode = room.room_code;
 
-$("lobbyCode").textContent = room.code;
+$("lobbyCode").textContent = room.room_code;
 $("lobbyCount").textContent = "1 joueur";
 $("lobbyPlayers").textContent = "Chargement des joueurs...";
 
