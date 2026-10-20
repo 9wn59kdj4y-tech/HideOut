@@ -649,7 +649,21 @@ $("createRoomBtn").addEventListener("click", async () => {
   if (error) throw error;
 
   console.log("Salon créé :", data);
-  status("homeStatus", "Partie créée avec succès !");
+
+const room = Array.isArray(data) ? data[0] : data;
+
+if (!room || !room.id || !room.code) {
+  throw new Error("Le salon a été créé, mais ses informations sont incomplètes.");
+}
+
+state.roomId = room.id;
+state.roomCode = room.code;
+
+$("lobbyCode").textContent = room.code;
+$("lobbyCount").textContent = "1 joueur";
+$("lobbyPlayers").textContent = "Chargement des joueurs...";
+
+showPage("lobbyPage");
 
 } catch (error) {
   console.error("Erreur de création :", error);
