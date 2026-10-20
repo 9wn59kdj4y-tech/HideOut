@@ -640,10 +640,21 @@ function randomRoomCode() {
 $("createRoomBtn").addEventListener("click", async () => {
   if (!requireLogin()) return;
 
-  status("homeStatus",
-    "La création réelle doit être reliée à la fonction sécurisée create_room de Supabase.",
-    true
-  );
+  try {
+  const { data, error } = await supabaseClient.rpc("create_hideout_room", {
+    p_radius_m: 500,
+    p_headstart_seconds: 120
+  });
+
+  if (error) throw error;
+
+  console.log("Salon créé :", data);
+  status("homeStatus", "Partie créée avec succès !");
+
+} catch (error) {
+  console.error("Erreur de création :", error);
+  status("homeStatus", error.message || "Impossible de créer la partie.", true);
+}
 
   /*
     À connecter au RPC réel :
