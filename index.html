@@ -649,6 +649,7 @@ $("createRoomBtn").addEventListener("click", async () => {
   if (error) throw error;
 
   console.log("Salon créé :", data);
+   alert("Réponse Supabase : " + JSON.stringify(data));
 
 const room = Array.isArray(data) ? data[0] : data;
 
