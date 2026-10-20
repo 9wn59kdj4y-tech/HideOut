@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <meta name="theme-color" content="#111210">
+  <title>HIDEOUT — The Hunt Begins</title>
+
+  <!-- Carte interactive 2D -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+  />
+
+  <style>
+    :root {
+      --bg: #111210;
+      --panel: #1b1d1a;
+      --panel-light: #252722;
+      --orange: #ff792f;
+      --text: #f5f5f0;
+      --muted: #9b9e96;
+      --border: #353832;
+      --green: #7ed99b;
+      --red: #ff6666;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    button, input, select { font: inherit; }
+    button { cursor: pointer; }
+
+    .topbar {
+      height: 65px;
+      padding: 0 18px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid var(--border);
+      background: #151613;
+    }
+
+    .brand {
+      font-size: 23px;
+      font-weight: 950;
+      letter-spacing: 2px;
+    }
+
+    .brand span { color: var(--orange); }
+
+    .live-status {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .live-status::before {
+      content: "";
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      margin-right: 7px;
+      background: var(--green);
+      border-radius: 50%;
+    }
+
+    main {
+      width: min(850px, 100%);
+      margin: 0 auto;
+      padding: 22px 15px 35px;
+    }
+
+    .eyebrow {
+      color: var(--orange);
+      font-size: 10px;
+      letter-spacing: 3px;
+      font-weight: 900;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 9px 0;
+      font-size: 37px;
+      line-height: 1.05;
+      letter-spacing: -1.5px;
+    }
+
+    h1 span { color: var(--orange); }
+
+    .subtitle {
+      color: var(--muted);
+      line-height: 1.6;
+      font-size: 13px;
+      margin-bottom: 22px;
+    }
+
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 17px;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 850;
+      margin-bottom: 14px;
+    }
+
+    .field { margin-bottom: 14px; }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: #d5d6cf;
+      font-size: 12px;
+      font-weight: 750;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 45px;
+      border-radius: 9px;
+      border: 1px solid #41443c;
+      background: #121310;
+      color: var(--text);
+      padding: 11px;
+    }
+
+    input:focus, select:focus {
+      outline: 1px solid var(--orange);
+      border-color: var(--orange);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .btn {
+      width: 100%;
+      min-height: 45px;
+      padding: 12px 15px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      background: var(--panel-light);
+      color: var(--text);
+      font-weight: 800;
+      margin-top: 8px;
+    }
+
+    .btn-primary {
+      color: #1b130d;
+      background: var(--orange);
+      border-color: var(--orange);
+    }
+
+    .btn:active { transform: scale(.99); }
+
+    .btn:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+
+    .note {
+      padding: 12px;
+      border-radius: 9px;
+      background: #ff792f0c;
+      border: 1px solid #ff792f40;
+      color: #d9c5b8;
+      font-size: 12px;
+      line-height: 1.6;
+      margin-top: 12px;
+    }
+
+    .notice {
+      padding: 12px;
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+      overflow-wrap: anywhere;
+    }
+
+    .hidden { display: none !important; }
+
+    .status {
+      font-size: 12px;
+      line-height: 1.6;
+      color: var(--muted);
+      margin-top: 12px;
+    }
+
+    .status.error { color: var(--red); }
+    .status.success { color: var(--green); }
+
+    .role-badge {
+      display: inline-block;
+      border: 1px solid var(--orange);
+      color: var(--orange);
+      padding: 7px 11px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 1px;
+    }
+
+    .role-description {
+      margin: 12px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    /* Carte */
+
+    #map {
+      width: 100%;
+      height: 48vh;
+      min-height: 320px;
+      max-height: 570px;
+      border-radius: 12px;
+      overflow: hidden;
+      background: #dce2d8;
+      border: 1px solid var(--border);
+      z-index: 1;
+    }
+
+    .map-wrap {
+      position: relative;
+    }
+
+    .map-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 13px;
+      margin-top: 12px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #2778ee;
+      border: 2px solid white;
+    }
+
+    .legend-dot.runner { background: #e5e5e5; border-color: #333; }
+    .legend-dot.hunter { background: var(--orange); border-color: white; }
+
+    .map-hint {
+      font-size: 11px;
+      line-height: 1.5;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+
+    .stat {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 13px 8px;
+      min-width: 0;
+    }
+
+    .stat-value {
+      font-size: 19px;
+      font-weight: 900;
+      overflow-wrap: anywhere;
+    }
+
+    .stat-label {
+      font-size: 10px;
+      color: var(--muted);
+      margin-top: 5px;
+    }
+
+    .bottom-bar {
+      position: sticky;
+      bottom: 0;
+      background: #171815f5;
+      border-top: 1px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11px;
+      color: var(--muted);
+      z-index: 500;
+    }
+
+    .bottom-bar strong { color: var(--text); }
+
+    .leaflet-control-attribution {
+      font-size: 9px !important;
+    }
+
+    .leaflet-popup-content-wrapper,
+    .leaflet-popup-tip {
+      background: #1b1d1a;
+      color: white;
+    }
+
+    .player-marker {
+      width: 19px;
+      height: 19px;
+      border: 3px solid white;
+      border-radius: 50%;
+      background: #2778ee;
+      box-shadow: 0 1px 7px #0008;
+    }
+
+    .player-marker.hunter {
+      background: var(--orange);
+      border-color: #fff3e9;
+    }
+
+    .player-marker.runner {
+      background: #deded8;
+      border-color: #30322d;
+    }
+
+    @media (max-width: 480px) {
+      h1 { font-size: 32px; }
+      main { padding: 18px 12px 28px; }
+      .grid { grid-template-columns: 1fr; gap: 0; }
+      #map { height: 43vh; min-height: 300px; }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="topbar">
+    <div class="brand">HIDE<span>OUT</span></div>
+    <div class="live-status">MODE DE JEU</div>
+  </header>
+
+  <main>
+    <section id="setup-screen">
+      <div class="eyebrow">Outplay the hunt</div>
+      <h1>THE CITY IS<br><span>YOUR PLAYGROUND.</span></h1>
+      <p class="subtitle">
+        Cache-toi. Déplace-toi. Échappe aux chasseurs.
+        Reste dans la zone et joue intelligemment.
+      </p>
+
+      <div class="panel">
+        <div class="panel-title">01 / Ton profil</div>
+        <div class="field">
+          <label for="player-name">Nom du joueur</label>
+          <input id="player-name" maxlength="20" placeholder="Entre ton pseudo">
+        </div>
+        <div class="grid">
+          <div class="field">
+            <label for="role-select">Rôle de démonstration</label>
+            <select id="role-select">
+              <option value="runner">Coureur</option>
+              <option value="hunter">Chasseur</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="radius">Rayon du périmètre</label>
+            <select id="radius">
+              <option value="300">300 mètres</option>
+              <option value="500" selected>500 mètres</option>
+              <option value="800">800 mètres</option>
+              <option value="1200">1,2 kilomètre</option>
+              <option value="2000">2 kilomètres</option>
+            </select>
+          </div>
+        </div>
+        <div class="field">
+          <label for="headstart">Avance des coureurs</label>
+          <select id="headstart">
+            <option value="30">30 secondes</option>
+            <option value="60" selected>1 minute</option>
+            <option value="120">2 minutes</option>
+            <option value="180">3 minutes</option>
+            <option value="300">5 minutes</option>
+          </select>
+        </div>
+
+        <div class="note">
+          Version de démonstration : le rôle peut être choisi ici pour tester
+          l'interface. Dans une vraie partie, seul le système de jeu attribuera
+          les rôles, et chaque joueur recevra le sien de manière privée.
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">02 / Autorisation de localisation</div>
+        <p class="subtitle">
+          HIDEOUT a besoin de ta position pour te placer sur la carte.
+          Ton navigateur te demandera l'autorisation.
+        </p>
+        <button id="location-btn" class="btn btn-primary">
+          Autoriser ma localisation
+        </button>
+        <div id="location-status" class="status" role="status" aria-live="polite">
+          La localisation n'a pas encore été demandée.
+        </div>
+      </div>
+
+      <button id="start-btn" class="btn btn-primary" disabled>
+        Ouvrir la carte
+      </button>
+      <p class="map-hint">
+        La localisation nécessite un site HTTPS et une autorisation de
+        l'appareil. La carte dépend d'une connexion Internet.
+      </p>
+    </section>
+
+    <section id="game-screen" class="hidden">
+      <div class="eyebrow">HIDEOUT / FIELD VIEW</div>
+      <h1>ZONE <span>ACTIVE.</span></h1>
+      <p class="subtitle" id="game-subtitle">
+        Carte et localisation du joueur.
+      </p>
+
+      <div class="stats">
+        <div class="stat">
+          <div id="gps-stat" class="stat-value">GPS</div>
+          <div class="stat-label">État de la localisation</div>
+        </div>
+        <div class="stat">
+          <div id="role-stat" class="stat-value">—</div>
+          <div class="stat-label">Ton rôle</div>
+        </div>
+        <div class="stat">
+          <div id="radius-stat" class="stat-value">500 m</div>
+          <div class="stat-label">Périmètre choisi</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">CARTE EN DIRECT</div>
+        <div class="map-wrap">
+          <div id="map" aria-label="Carte interactive de la zone de jeu"></div>
+        </div>
+        <div class="map-legend">
+          <div class="legend-item">
+            <span class="legend-dot"></span> Ta position
+          </div>
+          <div class="legend-item" id="runner-legend">
+            <span class="legend-dot runner"></span> Coureurs
+          </div>
+          <div class="legend-item" id="hunter-legend">
+            <span class="legend-dot hunter"></span> Chasseurs
+          </div>
+        </div>
+        <p id="map-status" class="map-hint" role="status" aria-live="polite">
+          Préparation de la carte…
+        </p>
+        <button id="recenter-btn" class="btn">Recentrer sur ma position</button>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">TON RÔLE</div>
+        <div id="role-badge" class="role-badge">COUREUR</div>
+        <p id="role-description" class="role-description"></p>
+      </div>
+
+      <div class="panel">
+        <div class="panel-title">PARTIE</div>
+        <div class="notice">
+          <strong>Prototype local.</strong><br>
+          Cette page affiche ta vraie position et le périmètre.
+          Les positions des autres joueurs ne sont pas encore connectées.
+          Aucun marqueur fictif n'est utilisé comme s'il s'agissait d'un vrai joueur.
+        </div>
+        <button id="stop-btn" class="btn">Arrêter le partage GPS</button>
+        <button id="back-btn" class="btn">Retour aux paramètres</button>
+      </div>
+    </section>
+  </main>
+
+  <footer class="bottom-bar">
+    <span>HIDEOUT <strong>v0.1</strong></span>
+    <span>GPS <strong id="footer-gps">INACTIF</strong></span>
+  </footer>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <script>
+    "use strict";
+
+    const $ = (id) => document.getElementById(id);
+
+    const state = {
+      name: "",
+      role: "runner",
+      radius: 500,
+      headstart: 60,
+      latitude: null,
+      longitude: null,
+      accuracy: null,
+      watchId: null,
+      map: null,
+      ownMarker: null,
+      zoneCircle: null,
+      accuracyCircle: null,
+      permissionGranted: false,
+      mapReady: false
+    };
+
+    function setStatus(message, type = "") {
+      const element = $("location-status");
+      element.textContent = message;
+      element.className = "status " + type;
+    }
+
+    function setMapStatus(message) {
+      $("map-status").textContent = message;
+    }
+
+    function setGPSStatus(message) {
+      $("gps-stat").textContent = message;
+      $("footer-gps").textContent = message;
+    }
+
+    function showScreen(screen) {
+      $("setup-screen").classList.toggle("hidden", screen !== "setup");
+      $("game-screen").classList.toggle("hidden", screen !== "game");
+    }
+
+    function requestLocation() {
+      if (!("geolocation" in navigator)) {
+        setStatus(
+          "Ce navigateur ne propose pas la géolocalisation. Essaie Safari dans un contexte HTTPS.",
+          "error"
+        );
+        return;
+      }
+
+      $("location-btn").disabled = true;
+      setStatus("Demande de localisation en cours…");
+
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          acceptPosition(position);
+          state.permissionGranted = true;
+          $("start-btn").disabled = false;
+          $("location-btn").disabled = false;
+          setStatus(
+            "Position obtenue. Précision estimée : " +
+            Math.round(position.coords.accuracy) + " mètres.",
+            "success"
+          );
+        },
+        (error) => {
+          $("location-btn").disabled = false;
+          $("start-btn").disabled = true;
+
+          const messages = {
+            1: "Autorisation refusée. Vérifie les réglages de localisation du navigateur et réessaie.",
+            2: "Position indisponible. Vérifie le GPS et ta connexion, puis réessaie.",
+            3: "La demande a expiré. Réessaie dans un endroit où le GPS capte mieux."
+          };
+
+          setStatus(messages[error.code] || "Impossible d'obtenir la position.", "error");
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000,
+          maximumAge: 0
+        }
+      );
+    }
+
+    function acceptPosition(position) {
+      state.latitude = position.coords.latitude;
+      state.longitude = position.coords.longitude;
+      state.accuracy = position.coords.accuracy;
+
+      if (state.mapReady) {
+        updateMapPosition();
+      }
+    }
+
+    function makePlayerIcon(role) {
+      return L.divIcon({
+        className: "",
+        html: '<div class="player-marker ' +
+          (role === "hunter" ? "hunter" : "") +
+          '"></div>',
+        iconSize: [19, 19],
+        iconAnchor: [9, 9]
+      });
+    }
+
+    function createMap() {
+      if (state.mapReady) {
+        state.map.invalidateSize();
+        return;
+      }
+
+      if (typeof L === "undefined") {
+        setMapStatus(
+          "La bibliothèque de carte n'a pas pu se charger. Vérifie ta connexion Internet."
+        );
+        return;
+      }
+
+      state.map = L.map("map", {
+        zoomControl: true,
+        attributionControl: true
+      }).setView([state.latitude, state.longitude], 17);
+
+      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+        maxZoom: 19,
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+      }).addTo(state.map);
+
+      state.zoneCircle = L.circle(
+        [state.latitude, state.longitude],
+        {
+          radius: state.radius,
+          color: "#ff792f",
+          weight: 2,
+          opacity: 0.9,
+          fillColor: "#ff792f",
+          fillOpacity: 0.07,
+          dashArray: "7 7"
+        }
+      ).addTo(state.map);
+
+      state.accuracyCircle = L.circle(
+        [state.latitude, state.longitude],
+        {
+          radius: Math.max(5, state.accuracy || 20),
+          color: "#2778ee",
+          weight: 1,
+          fillColor: "#2778ee",
+          fillOpacity: 0.12
+        }
+      ).addTo(state.map);
+
+      state.ownMarker = L.marker(
+        [state.latitude, state.longitude],
+        { icon: makePlayerIcon(state.role) }
+      ).addTo(state.map);
+
+      state.ownMarker.bindPopup("Ta position GPS");
+
+      state.mapReady = true;
+      updateMapPosition();
+      setMapStatus(
+        "Carte chargée. Le point bleu représente ta position actuelle. " +
+        "Le cercle orange indique le périmètre choisi."
+      );
+
+      // Force Leaflet à recalculer les dimensions après affichage du panneau.
+      setTimeout(() => state.map && state.map.invalidateSize(), 250);
+    }
+
+    function updateMapPosition() {
+      if (!state.mapReady || state.latitude == null) return;
+
+      const point = [state.latitude, state.longitude];
+
+      state.ownMarker.setLatLng(point);
+      state.zoneCircle.setLatLng(point);
+      state.zoneCircle.setRadius(state.radius);
+      state.accuracyCircle.setLatLng(point);
+      state.accuracyCircle.setRadius(Math.max(5, state.accuracy || 20));
+
+      $("radius-stat").textContent =
+        state.radius >= 1000
+          ? (state.radius / 1000).toLocaleString("fr-FR") + " km"
+          : state.radius + " m";
+
+      setGPSStatus("ACTIF");
+    }
+
+    function startWatching() {
+      if (state.watchId !== null) return;
+      if (!navigator.geolocation) return;
+
+      state.watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          acceptPosition(position);
+          setGPSStatus("ACTIF");
+          setMapStatus(
+            "Position actualisée. Précision GPS estimée : " +
+            Math.round(position.coords.accuracy) + " m."
+          );
+        },
+        (error) => {
+          const message = error.code === 1
+            ? "L'accès GPS a été refusé ou désactivé."
+            : "Le GPS ne peut pas actualiser la position pour le moment.";
+
+          setMapStatus(message);
+          setGPSStatus("INDISPONIBLE");
+        },
+        {
+          enableHighAccuracy: true,
+          maximumAge: 2000,
+          timeout: 20000
+        }
+      );
+    }
+
+    function stopWatching() {
+      if (state.watchId !== null) {
+        navigator.geolocation.clearWatch(state.watchId);
+        state.watchId = null;
+      }
+
+      setGPSStatus("ARRÊTÉ");
+      setMapStatus("Le partage GPS de cette page est arrêté.");
+    }
+
+    function startGame() {
+      const name = $("player-name").value.trim();
+
+      if (!name) {
+        setStatus("Entre d'abord ton pseudo.", "error");
+        $("player-name").focus();
+        return;
+      }
+
+      if (!state.permissionGranted ||
+          state.latitude == null ||
+          state.longitude == null) {
+        setStatus("Autorise d'abord l'accès à ta localisation.", "error");
+        return;
+      }
+
+      state.name = name;
+      state.role = $("role-select").value;
+      state.radius = Number($("radius").value);
+      state.headstart = Number($("headstart").value);
+
+      $("role-stat").textContent =
+        state.role === "hunter" ? "CHASSEUR" : "COUREUR";
+
+      $("role-badge").textContent =
+        state.role === "hunter" ? "CHASSEUR" : "COUREUR";
+
+      $("role-description").textContent =
+        state.role === "hunter"
+          ? "Dans cette version, ton rôle de démonstration est chasseur. La position des coureurs sera visible quand le vrai multijoueur sera connecté."
+          : "Dans cette version, ton rôle de démonstration est coureur. Les positions des chasseurs ne seront pas affichées. Le multijoueur réel reste à connecter.";
+
+      $("game-subtitle").textContent =
+        "Joueur : " + state.name + " — avance des coureurs : " +
+        state.headstart + " secondes.";
+
+      $("runner-legend").classList.toggle("hidden", state.role === "runner");
+      $("hunter-legend").classList.toggle("hidden", state.role === "hunter");
+
+      showScreen("game");
+      createMap();
+      startWatching();
+    }
+
+    $("location-btn").addEventListener("click", requestLocation);
+    $("start-btn").addEventListener("click", startGame);
+
+    $("radius").addEventListener("change", () => {
+      state.radius = Number($("radius").value);
+      if (state.zoneCircle) {
+        state.zoneCircle.setRadius(state.radius);
+      }
+    });
+
+    $("recenter-btn").addEventListener("click", () => {
+      if (!state.mapReady || state.latitude == null) {
+        setMapStatus("Ta position n'est pas disponible.");
+        return;
+      }
+
+      state.map.setView([state.latitude, state.longitude], 17);
+      setMapStatus("Carte recentrée sur ta position.");
+    });
+
+    $("stop-btn").addEventListener("click", stopWatching);
+
+    $("back-btn").addEventListener("click", () => {
+      stopWatching();
+      showScreen("setup");
+    });
+
+    window.addEventListener("resize", () => {
+      if (state.mapReady) state.map.invalidateSize();
+    });
+  </script>
+</body>
+</html>
