@@ -511,6 +511,28 @@ $("loginBtn").addEventListener("click", async () => {
   }
 });
 
+$("googleLoginBtn").addEventListener("click", async () => {
+  if (!requireSupabase()) return;
+
+  const button = $("googleLoginBtn");
+  button.disabled = true;
+  authStatus("Redirection vers Google...");
+
+  try {
+    const { error } = await supabaseClient.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: window.location.origin + window.location.pathname
+      }
+    });
+
+    if (error) throw error;
+  } catch (error) {
+    authStatus(error.message || "Connexion Google impossible.", true);
+    button.disabled = false;
+  }
+});
+
 $("signupBtn").addEventListener("click", async () => {
   if (!requireSupabase()) return;
   const email = $("email").value.trim();
