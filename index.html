@@ -1,814 +1,1056 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
-  <meta name="theme-color" content="#111210">
-  <title>HIDEOUT — The Hunt Begins</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#101010">
+<title>HIDEOUT</title>
 
-  <!-- Carte interactive 2D -->
-  <link
-    rel="stylesheet"
-    href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-  />
+<link rel="stylesheet"
+ href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-  <style>
-    :root {
-      --bg: #111210;
-      --panel: #1b1d1a;
-      --panel-light: #252722;
-      --orange: #ff792f;
-      --text: #f5f5f0;
-      --muted: #9b9e96;
-      --border: #353832;
-      --green: #7ed99b;
-      --red: #ff6666;
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      background: var(--bg);
-      color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-    }
-
-    button, input, select { font: inherit; }
-    button { cursor: pointer; }
-
-    .topbar {
-      height: 65px;
-      padding: 0 18px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid var(--border);
-      background: #151613;
-    }
-
-    .brand {
-      font-size: 23px;
-      font-weight: 950;
-      letter-spacing: 2px;
-    }
-
-    .brand span { color: var(--orange); }
-
-    .live-status {
-      font-size: 11px;
-      color: var(--muted);
-    }
-
-    .live-status::before {
-      content: "";
-      display: inline-block;
-      width: 7px;
-      height: 7px;
-      margin-right: 7px;
-      background: var(--green);
-      border-radius: 50%;
-    }
-
-    main {
-      width: min(850px, 100%);
-      margin: 0 auto;
-      padding: 22px 15px 35px;
-    }
-
-    .eyebrow {
-      color: var(--orange);
-      font-size: 10px;
-      letter-spacing: 3px;
-      font-weight: 900;
-      text-transform: uppercase;
-    }
-
-    h1 {
-      margin: 9px 0;
-      font-size: 37px;
-      line-height: 1.05;
-      letter-spacing: -1.5px;
-    }
-
-    h1 span { color: var(--orange); }
-
-    .subtitle {
-      color: var(--muted);
-      line-height: 1.6;
-      font-size: 13px;
-      margin-bottom: 22px;
-    }
-
-    .panel {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      padding: 17px;
-      margin-bottom: 14px;
-    }
-
-    .panel-title {
-      font-size: 14px;
-      font-weight: 850;
-      margin-bottom: 14px;
-    }
-
-    .field { margin-bottom: 14px; }
-
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      color: #d5d6cf;
-      font-size: 12px;
-      font-weight: 750;
-    }
-
-    input, select {
-      width: 100%;
-      min-height: 45px;
-      border-radius: 9px;
-      border: 1px solid #41443c;
-      background: #121310;
-      color: var(--text);
-      padding: 11px;
-    }
-
-    input:focus, select:focus {
-      outline: 1px solid var(--orange);
-      border-color: var(--orange);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 12px;
-    }
-
-    .btn {
-      width: 100%;
-      min-height: 45px;
-      padding: 12px 15px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      background: var(--panel-light);
-      color: var(--text);
-      font-weight: 800;
-      margin-top: 8px;
-    }
-
-    .btn-primary {
-      color: #1b130d;
-      background: var(--orange);
-      border-color: var(--orange);
-    }
-
-    .btn:active { transform: scale(.99); }
-
-    .btn:disabled {
-      opacity: .5;
-      cursor: not-allowed;
-    }
-
-    .note {
-      padding: 12px;
-      border-radius: 9px;
-      background: #ff792f0c;
-      border: 1px solid #ff792f40;
-      color: #d9c5b8;
-      font-size: 12px;
-      line-height: 1.6;
-      margin-top: 12px;
-    }
-
-    .notice {
-      padding: 12px;
-      border: 1px solid var(--border);
-      border-radius: 9px;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
-      overflow-wrap: anywhere;
-    }
-
-    .hidden { display: none !important; }
-
-    .status {
-      font-size: 12px;
-      line-height: 1.6;
-      color: var(--muted);
-      margin-top: 12px;
-    }
-
-    .status.error { color: var(--red); }
-    .status.success { color: var(--green); }
-
-    .role-badge {
-      display: inline-block;
-      border: 1px solid var(--orange);
-      color: var(--orange);
-      padding: 7px 11px;
-      border-radius: 8px;
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-
-    .role-description {
-      margin: 12px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.6;
-    }
-
-    /* Carte */
-
-    #map {
-      width: 100%;
-      height: 48vh;
-      min-height: 320px;
-      max-height: 570px;
-      border-radius: 12px;
-      overflow: hidden;
-      background: #dce2d8;
-      border: 1px solid var(--border);
-      z-index: 1;
-    }
-
-    .map-wrap {
-      position: relative;
-    }
-
-    .map-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 13px;
-      margin-top: 12px;
-      color: var(--muted);
-      font-size: 11px;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .legend-dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: #2778ee;
-      border: 2px solid white;
-    }
-
-    .legend-dot.runner { background: #e5e5e5; border-color: #333; }
-    .legend-dot.hunter { background: var(--orange); border-color: white; }
-
-    .map-hint {
-      font-size: 11px;
-      line-height: 1.5;
-      color: var(--muted);
-      margin-top: 10px;
-    }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 8px;
-      margin-bottom: 14px;
-    }
-
-    .stat {
-      background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 13px 8px;
-      min-width: 0;
-    }
-
-    .stat-value {
-      font-size: 19px;
-      font-weight: 900;
-      overflow-wrap: anywhere;
-    }
-
-    .stat-label {
-      font-size: 10px;
-      color: var(--muted);
-      margin-top: 5px;
-    }
-
-    .bottom-bar {
-      position: sticky;
-      bottom: 0;
-      background: #171815f5;
-      border-top: 1px solid var(--border);
-      padding: 12px 16px;
-      display: flex;
-      justify-content: space-between;
-      gap: 10px;
-      font-size: 11px;
-      color: var(--muted);
-      z-index: 500;
-    }
-
-    .bottom-bar strong { color: var(--text); }
-
-    .leaflet-control-attribution {
-      font-size: 9px !important;
-    }
-
-    .leaflet-popup-content-wrapper,
-    .leaflet-popup-tip {
-      background: #1b1d1a;
-      color: white;
-    }
-
-    .player-marker {
-      width: 19px;
-      height: 19px;
-      border: 3px solid white;
-      border-radius: 50%;
-      background: #2778ee;
-      box-shadow: 0 1px 7px #0008;
-    }
-
-    .player-marker.hunter {
-      background: var(--orange);
-      border-color: #fff3e9;
-    }
-
-    .player-marker.runner {
-      background: #deded8;
-      border-color: #30322d;
-    }
-
-    @media (max-width: 480px) {
-      h1 { font-size: 32px; }
-      main { padding: 18px 12px 28px; }
-      .grid { grid-template-columns: 1fr; gap: 0; }
-      #map { height: 43vh; min-height: 300px; }
-    }
-  </style>
+<style>
+:root{
+  --bg:#101010;--panel:#191919;--panel2:#222;
+  --orange:#ff852e;--text:#f7f7f7;--muted:#999;
+  --green:#65df92;--red:#ff535b;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{
+  margin:0;background:var(--bg);color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+}
+button,input{font:inherit}
+button{cursor:pointer}
+.hidden{display:none!important}
+.page{min-height:100dvh;padding:24px 18px 36px}
+.logo{font-size:34px;font-weight:950;letter-spacing:4px}
+.logo span{color:var(--orange)}
+.tagline{color:var(--muted);margin-top:6px}
+h1{font-size:29px;line-height:1.1}
+h2{font-size:21px}
+p{line-height:1.5}
+.muted{color:var(--muted)}
+.small{font-size:13px}
+.card{
+  background:var(--panel);border:1px solid #303030;
+  border-radius:19px;padding:18px;margin:18px 0;
+}
+.field{display:grid;gap:8px;margin:14px 0}
+.field label{font-size:13px;color:#bbb}
+input{
+  width:100%;padding:15px;border-radius:12px;
+  border:1px solid #3b3b3b;background:#111;color:white;
+  outline:none;
+}
+input:focus{border-color:var(--orange)}
+.btn{
+  border:0;border-radius:12px;padding:15px;
+  font-weight:800;width:100%;background:var(--orange);
+  color:#17100a;margin:5px 0;
+}
+.btn.secondary{background:#292929;color:white;border:1px solid #3a3a3a}
+.btn.ghost{background:transparent;color:var(--muted)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.row{display:flex;align-items:center;gap:10px}
+.row>*{min-width:0}
+.between{justify-content:space-between}
+.pill{
+  display:inline-flex;padding:6px 10px;border-radius:30px;
+  background:#292929;color:#ddd;font-size:12px;
+}
+.orange{color:var(--orange)}
+.notice{
+  background:#21180f;border:1px solid #56351d;
+  color:#ffd7b6;border-radius:12px;padding:12px;
+  font-size:13px;line-height:1.5;margin:12px 0;
+}
+hr{border:0;border-top:1px solid #303030;margin:18px 0}
+#app{min-height:100dvh}
+.topbar{
+  position:relative;z-index:500;background:#141414;
+  padding:calc(10px + env(safe-area-inset-top)) 14px 12px;
+  border-bottom:1px solid #303030;
+}
+.topbar .logo{font-size:23px;letter-spacing:3px}
+#game{height:100dvh;overflow:hidden;position:relative}
+#map{position:absolute;inset:0;background:#252525}
+.leaflet-container{background:#252525}
+.hud{
+  position:absolute;z-index:400;top:calc(12px + env(safe-area-inset-top));
+  left:12px;right:12px;pointer-events:none;
+  display:flex;justify-content:space-between;gap:8px;
+}
+.hudbox{
+  pointer-events:auto;background:#171717ed;
+  border:1px solid #454545;border-radius:14px;padding:10px 12px;
+  box-shadow:0 5px 20px #0006;
+}
+.timer{font-size:21px;font-weight:900}
+.playerdots{display:flex;gap:5px;align-items:center;max-width:55vw;overflow:hidden}
+.dot{
+  width:15px;height:15px;flex:0 0 15px;border-radius:50%;
+  border:2px solid #aaa;background:#151515;
+}
+.dot.hunter{background:var(--red);border-color:#ff9d9d}
+.dot.dead{position:relative;opacity:.5}
+.dot.dead:after{
+  content:"";position:absolute;width:19px;height:3px;
+  background:var(--red);top:4px;left:-4px;transform:rotate(-45deg)
+}
+.bottomhud{
+  position:absolute;z-index:400;left:12px;right:12px;
+  bottom:calc(85px + env(safe-area-inset-bottom));
+  background:#171717ed;border:1px solid #454545;
+  border-radius:16px;padding:12px;
+}
+.zonebar{height:5px;background:#393939;border-radius:10px;margin-top:10px;overflow:hidden}
+.zonebar div{height:100%;width:100%;background:var(--orange);transition:width .5s}
+.nav{
+  position:absolute;z-index:500;bottom:0;left:0;right:0;
+  display:grid;grid-template-columns:repeat(3,1fr);gap:8px;
+  padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+  background:#151515f5;border-top:1px solid #353535;
+}
+.nav button{
+  background:transparent;border:0;border-radius:12px;color:#aaa;
+  padding:10px 2px;font-size:13px;font-weight:700;
+}
+.nav button.active{background:#322216;color:var(--orange)}
+.sheet{
+  position:absolute;z-index:600;bottom:0;left:0;right:0;
+  max-height:82dvh;overflow:auto;background:#181818;
+  border:1px solid #414141;border-radius:24px 24px 0 0;
+  padding:20px 18px calc(24px + env(safe-area-inset-bottom));
+  box-shadow:0 -12px 50px #0008;
+}
+.sheethead{display:flex;align-items:center;justify-content:space-between}
+.close{
+  border:0;border-radius:50%;width:38px;height:38px;
+  background:#303030;color:white;font-size:20px;
+}
+.playerrow{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 0;border-bottom:1px solid #303030;
+}
+.avatar{
+  width:38px;height:38px;border-radius:50%;background:#303030;
+  display:grid;place-items:center;font-weight:800;
+}
+.message{
+  padding:10px 12px;border-radius:13px;background:#282828;
+  margin:9px 0;overflow-wrap:anywhere;
+}
+.message.mine{background:#49301e}
+#messagesList{max-height:35vh;overflow:auto}
+#toast{
+  position:absolute;z-index:900;top:80px;left:16px;right:16px;
+  background:#292929;border:1px solid #555;border-radius:12px;
+  padding:13px;display:none;
+}
+.center{text-align:center}
+.bigcode{font-size:28px;font-weight:900;letter-spacing:5px;color:var(--orange)}
+@media(min-width:700px){
+  .page{max-width:500px;margin:auto;padding-top:40px}
+}
+</style>
 </head>
 
 <body>
-  <header class="topbar">
-    <div class="brand">HIDE<span>OUT</span></div>
-    <div class="live-status">MODE DE JEU</div>
-  </header>
+<div id="app">
 
-  <main>
-    <section id="setup-screen">
-      <div class="eyebrow">Outplay the hunt</div>
-      <h1>THE CITY IS<br><span>YOUR PLAYGROUND.</span></h1>
-      <p class="subtitle">
-        Cache-toi. Déplace-toi. Échappe aux chasseurs.
-        Reste dans la zone et joue intelligemment.
-      </p>
+<!-- AUTHENTIFICATION -->
+<section id="authPage" class="page">
+  <div class="logo">HIDE<span>OUT</span></div>
+  <div class="tagline">PLAY YOUR GAME.</div>
 
-      <div class="panel">
-        <div class="panel-title">01 / Ton profil</div>
-        <div class="field">
-          <label for="player-name">Nom du joueur</label>
-          <input id="player-name" maxlength="20" placeholder="Entre ton pseudo">
-        </div>
-        <div class="grid">
-          <div class="field">
-            <label for="role-select">Rôle de démonstration</label>
-            <select id="role-select">
-              <option value="runner">Coureur</option>
-              <option value="hunter">Chasseur</option>
-            </select>
-          </div>
-          <div class="field">
-            <label for="radius">Rayon du périmètre</label>
-            <select id="radius">
-              <option value="300">300 mètres</option>
-              <option value="500" selected>500 mètres</option>
-              <option value="800">800 mètres</option>
-              <option value="1200">1,2 kilomètre</option>
-              <option value="2000">2 kilomètres</option>
-            </select>
-          </div>
-        </div>
-        <div class="field">
-          <label for="headstart">Avance des coureurs</label>
-          <select id="headstart">
-            <option value="30">30 secondes</option>
-            <option value="60" selected>1 minute</option>
-            <option value="120">2 minutes</option>
-            <option value="180">3 minutes</option>
-            <option value="300">5 minutes</option>
-          </select>
-        </div>
+  <div class="card">
+    <span class="pill">MULTIPLAYER • GPS</span>
+    <h1>Entre dans<br>la partie.</h1>
+    <p class="muted">Connecte-toi pour retrouver tes amis et jouer.</p>
 
-        <div class="note">
-          Version de démonstration : le rôle peut être choisi ici pour tester
-          l'interface. Dans une vraie partie, seul le système de jeu attribuera
-          les rôles, et chaque joueur recevra le sien de manière privée.
-        </div>
+    <div class="field">
+      <label for="email">Adresse e-mail</label>
+      <input id="email" type="email" autocomplete="email"
+        placeholder="toi@exemple.com">
+    </div>
+    <div class="field">
+      <label for="password">Mot de passe</label>
+      <input id="password" type="password"
+        autocomplete="current-password" placeholder="Ton mot de passe">
+    </div>
+
+    <button class="btn" id="loginBtn">Se connecter</button>
+    <button class="btn secondary" id="signupBtn">Créer un compte</button>
+    <button class="btn ghost" id="resetBtn">Mot de passe oublié ?</button>
+
+    <div id="authStatus" class="notice hidden" role="status"></div>
+  </div>
+
+  <div class="notice">
+    La localisation n'est demandée qu'au moment où elle est nécessaire
+    pour jouer. Ne partage pas ta position en dehors d'une partie prévue.
+  </div>
+  <p class="muted small center">HIDEOUT • Jouer ensemble, bouger ensemble.</p>
+</section>
+
+<!-- ACCUEIL -->
+<section id="homePage" class="page hidden">
+  <div class="row between">
+    <div class="logo">HIDE<span>OUT</span></div>
+    <button class="btn secondary" id="logoutBtn" style="width:auto">Quitter</button>
+  </div>
+  <p class="muted">Prêt à entrer dans la zone ?</p>
+
+  <div class="card">
+    <span class="pill">NOUVELLE PARTIE</span>
+    <h1>Crée ton<br>propre terrain.</h1>
+    <p class="muted">Choisis les règles avant d'inviter tes amis.</p>
+
+    <div class="field">
+      <label for="roomName">Nom de la partie</label>
+      <input id="roomName" maxlength="40" placeholder="Ex. : La chasse du samedi">
+    </div>
+    <div class="field">
+      <label for="headStart">Avance des personnes cachées</label>
+      <select id="headStart" class="field" style="background:#111;color:white;border:1px solid #3b3b3b;padding:12px;border-radius:12px">
+        <option value="30">30 secondes</option>
+        <option value="60" selected>1 minute</option>
+        <option value="120">2 minutes</option>
+        <option value="180">3 minutes</option>
+        <option value="300">5 minutes</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="duration">Durée de la partie</label>
+      <select id="duration" style="background:#111;color:white;border:1px solid #3b3b3b;padding:12px;border-radius:12px">
+        <option value="900">15 minutes</option>
+        <option value="1800" selected>30 minutes</option>
+        <option value="2700">45 minutes</option>
+        <option value="3600">1 heure</option>
+      </select>
+    </div>
+    <div class="field">
+      <label for="radius">Rayon initial</label>
+      <select id="radius" style="background:#111;color:white;border:1px solid #3b3b3b;padding:12px;border-radius:12px">
+        <option value="300">300 mètres</option>
+        <option value="500">500 mètres</option>
+        <option value="1000" selected>1 kilomètre</option>
+        <option value="2000">2 kilomètres</option>
+        <option value="5000">5 kilomètres</option>
+      </select>
+    </div>
+    <button class="btn" id="createRoomBtn">Créer une partie</button>
+  </div>
+
+  <div class="card">
+    <span class="pill">REJOINDRE</span>
+    <h2>Tu as un code ?</h2>
+    <div class="field">
+      <label for="joinCode">Code du salon</label>
+      <input id="joinCode" maxlength="8" placeholder="Ex. : A7K9Q2"
+        autocapitalize="characters">
+    </div>
+    <button class="btn secondary" id="joinRoomBtn">Rejoindre la partie</button>
+  </div>
+
+  <div id="homeStatus" class="notice hidden" role="status"></div>
+</section>
+
+<!-- SALON -->
+<section id="lobbyPage" class="page hidden">
+  <div class="row between">
+    <div class="logo">HIDE<span>OUT</span></div>
+    <span class="pill">SALON</span>
+  </div>
+  <div class="card center">
+    <p class="muted">CODE DE LA PARTIE</p>
+    <div id="lobbyCode" class="bigcode">------</div>
+    <button class="btn secondary" id="copyCodeBtn">Copier le code</button>
+    <button class="btn secondary" id="shareBtn">Partager l'invitation</button>
+  </div>
+  <div class="card">
+    <div class="row between">
+      <h2>Joueurs</h2>
+      <span id="lobbyCount" class="pill">0 joueur</span>
+    </div>
+    <div id="lobbyPlayers"></div>
+    <p class="muted small">L'hôte lance la partie lorsque tout le monde est prêt.</p>
+    <button class="btn secondary" id="readyBtn">Je suis prêt</button>
+    <button class="btn" id="startBtn">Lancer la partie</button>
+    <button class="btn ghost" id="leaveRoomBtn">Quitter le salon</button>
+  </div>
+  <div id="lobbyStatus" class="notice hidden"></div>
+</section>
+
+<!-- JEU -->
+<section id="game" class="hidden">
+  <div id="map"></div>
+
+  <div class="hud">
+    <div class="hudbox">
+      <div class="muted small">TEMPS RESTANT</div>
+      <div id="timer" class="timer">30:00</div>
+    </div>
+    <button class="hudbox" id="playersToggle" aria-expanded="false"
+      style="color:white;border:1px solid #454545">
+      <div class="muted small">JOUEURS EN JEU</div>
+      <div class="playerdots" id="playerDots"></div>
+      <div id="playerCount" class="small">0 joueur</div>
+      <div class="muted small">⌄ Afficher la liste</div>
+    </button>
+  </div>
+
+  <div class="bottomhud">
+    <div class="row between">
+      <div>
+        <div class="muted small">PROCHAIN RÉTRÉCISSEMENT</div>
+        <strong id="nextShrink">En attente</strong>
       </div>
-
-      <div class="panel">
-        <div class="panel-title">02 / Autorisation de localisation</div>
-        <p class="subtitle">
-          HIDEOUT a besoin de ta position pour te placer sur la carte.
-          Ton navigateur te demandera l'autorisation.
-        </p>
-        <button id="location-btn" class="btn btn-primary">
-          Autoriser ma localisation
-        </button>
-        <div id="location-status" class="status" role="status" aria-live="polite">
-          La localisation n'a pas encore été demandée.
-        </div>
+      <div style="text-align:right">
+        <div class="muted small">ZONE ACTUELLE</div>
+        <strong id="zoneRadius">—</strong>
       </div>
+    </div>
+    <div id="zoneStatus" class="small" style="margin-top:8px">
+      La zone sera affichée ici.
+    </div>
+    <div class="zonebar"><div id="zoneProgress"></div></div>
+  </div>
 
-      <button id="start-btn" class="btn btn-primary" disabled>
-        Ouvrir la carte
-      </button>
-      <p class="map-hint">
-        La localisation nécessite un site HTTPS et une autorisation de
-        l'appareil. La carte dépend d'une connexion Internet.
-      </p>
-    </section>
+  <nav class="nav" aria-label="Menu de jeu">
+    <button id="messagesNav">▤<br>Messages</button>
+    <button id="zoneNav">◎<br>Zone</button>
+    <button id="optionsNav">⚙<br>Options</button>
+  </nav>
 
-    <section id="game-screen" class="hidden">
-      <div class="eyebrow">HIDEOUT / FIELD VIEW</div>
-      <h1>ZONE <span>ACTIVE.</span></h1>
-      <p class="subtitle" id="game-subtitle">
-        Carte et localisation du joueur.
-      </p>
+  <div id="sheet" class="sheet hidden" role="dialog" aria-modal="true">
+    <div class="sheethead">
+      <h2 id="sheetTitle">Menu</h2>
+      <button id="closeSheet" class="close" aria-label="Fermer">×</button>
+    </div>
 
-      <div class="stats">
-        <div class="stat">
-          <div id="gps-stat" class="stat-value">GPS</div>
-          <div class="stat-label">État de la localisation</div>
+    <div id="messagesPanel" class="hidden">
+      <p class="muted small">Messages de la partie</p>
+      <div id="messagesList"></div>
+      <form id="messageForm" class="row" style="margin-top:12px">
+        <input id="messageInput" maxlength="500"
+          placeholder="Écrire un message…" required>
+        <button class="btn" style="width:auto" type="submit">Envoyer</button>
+      </form>
+      <p class="muted small">L'envoi entre téléphones nécessite la synchronisation serveur.</p>
+    </div>
+
+    <div id="zonePanel" class="hidden">
+      <div class="card">
+        <span class="pill">ZONE DE JEU</span>
+        <h2 id="zoneTitle">Zone active</h2>
+        <p id="zoneDetails" class="muted">Les informations de zone apparaîtront ici.</p>
+        <div class="row between">
+          <span>Rayon actuel</span><strong id="zoneRadiusDetail">—</strong>
         </div>
-        <div class="stat">
-          <div id="role-stat" class="stat-value">—</div>
-          <div class="stat-label">Ton rôle</div>
+        <hr>
+        <div class="row between">
+          <span>Prochaine réduction</span><strong id="shrinkDetail">—</strong>
         </div>
-        <div class="stat">
-          <div id="radius-stat" class="stat-value">500 m</div>
-          <div class="stat-label">Périmètre choisi</div>
-        </div>
+        <p class="muted small">La position GPS doit être activée pour vérifier si tu es dans la zone.</p>
       </div>
+    </div>
 
-      <div class="panel">
-        <div class="panel-title">CARTE EN DIRECT</div>
-        <div class="map-wrap">
-          <div id="map" aria-label="Carte interactive de la zone de jeu"></div>
-        </div>
-        <div class="map-legend">
-          <div class="legend-item">
-            <span class="legend-dot"></span> Ta position
-          </div>
-          <div class="legend-item" id="runner-legend">
-            <span class="legend-dot runner"></span> Coureurs
-          </div>
-          <div class="legend-item" id="hunter-legend">
-            <span class="legend-dot hunter"></span> Chasseurs
-          </div>
-        </div>
-        <p id="map-status" class="map-hint" role="status" aria-live="polite">
-          Préparation de la carte…
-        </p>
-        <button id="recenter-btn" class="btn">Recentrer sur ma position</button>
+    <div id="optionsPanel" class="hidden">
+      <div class="card">
+        <h2>Options de partie</h2>
+        <p class="muted">Les réglages de la partie sont contrôlés par le serveur dans la version multijoueur.</p>
+        <button class="btn secondary" id="recenterBtn">Recentrer la carte</button>
+        <button class="btn secondary" id="gpsRetryBtn">Réessayer la localisation</button>
+        <button class="btn ghost" id="exitGameBtn">Quitter la partie</button>
       </div>
+    </div>
 
-      <div class="panel">
-        <div class="panel-title">TON RÔLE</div>
-        <div id="role-badge" class="role-badge">COUREUR</div>
-        <p id="role-description" class="role-description"></p>
-      </div>
+    <div id="playersPanel" class="hidden">
+      <h2>Liste des joueurs</h2>
+      <div id="playersList"></div>
+    </div>
+  </div>
+</section>
 
-      <div class="panel">
-        <div class="panel-title">PARTIE</div>
-        <div class="notice">
-          <strong>Prototype local.</strong><br>
-          Cette page affiche ta vraie position et le périmètre.
-          Les positions des autres joueurs ne sont pas encore connectées.
-          Aucun marqueur fictif n'est utilisé comme s'il s'agissait d'un vrai joueur.
-        </div>
-        <button id="stop-btn" class="btn">Arrêter le partage GPS</button>
-        <button id="back-btn" class="btn">Retour aux paramètres</button>
-      </div>
-    </section>
-  </main>
+<div id="toast" role="status"></div>
+</div>
 
-  <footer class="bottom-bar">
-    <span>HIDEOUT <strong>v0.1</strong></span>
-    <span>GPS <strong id="footer-gps">INACTIF</strong></span>
-  </footer>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+"use strict";
 
-  <script>
-    "use strict";
+/* ==========================================================
+   CONFIGURATION
+   Remplacer ces deux valeurs par celles du projet Supabase.
+   Ne jamais mettre de clé service_role dans ce fichier.
+   ========================================================== */
 
-    const $ = (id) => document.getElementById(id);
+const SUPABASE_URL = "COLLER_ICI_URL_SUPABASE";
+const SUPABASE_PUBLISHABLE_KEY = "COLLER_ICI_CLE_PUBLIQUE";
 
-    const state = {
-      name: "",
-      role: "runner",
-      radius: 500,
-      headstart: 60,
-      latitude: null,
-      longitude: null,
-      accuracy: null,
-      watchId: null,
-      map: null,
-      ownMarker: null,
-      zoneCircle: null,
-      accuracyCircle: null,
-      permissionGranted: false,
-      mapReady: false
-    };
+let supabaseClient = null;
+if (
+  window.supabase &&
+  SUPABASE_URL.startsWith("https://") &&
+  SUPABASE_PUBLISHABLE_KEY !== "COLLER_ICI_CLE_PUBLIQUE"
+) {
+  supabaseClient = window.supabase.createClient(
+    SUPABASE_URL,
+    SUPABASE_PUBLISHABLE_KEY
+  );
+}
 
-    function setStatus(message, type = "") {
-      const element = $("location-status");
-      element.textContent = message;
-      element.className = "status " + type;
-    }
+/* ==========================================================
+   ÉTAT LOCAL DE L'INTERFACE
+   Le jeu n'est pas considéré comme multijoueur tant que
+   les fonctions serveur n'ont pas été raccordées.
+   ========================================================== */
 
-    function setMapStatus(message) {
-      $("map-status").textContent = message;
-    }
+const state = {
+  user: null,
+  room: null,
+  isHost: false,
+  ready: false,
+  role: null,
+  map: null,
+  gps: null,
+  watchId: null,
+  zone: null,
+  timerInterval: null,
+  gameStartedAt: null,
+  players: [],
+  messages: [],
+  activeSheet: null
+};
 
-    function setGPSStatus(message) {
-      $("gps-stat").textContent = message;
-      $("footer-gps").textContent = message;
-    }
+const $ = id => document.getElementById(id);
 
-    function showScreen(screen) {
-      $("setup-screen").classList.toggle("hidden", screen !== "setup");
-      $("game-screen").classList.toggle("hidden", screen !== "game");
-    }
+function showToast(message) {
+  const toast = $("toast");
+  toast.textContent = message;
+  toast.style.display = "block";
+  clearTimeout(showToast.timeout);
+  showToast.timeout = setTimeout(() => {
+    toast.style.display = "none";
+  }, 4000);
+}
 
-    function requestLocation() {
-      if (!("geolocation" in navigator)) {
-        setStatus(
-          "Ce navigateur ne propose pas la géolocalisation. Essaie Safari dans un contexte HTTPS.",
-          "error"
-        );
-        return;
+function status(id, message, isError = false) {
+  const el = $(id);
+  el.textContent = message;
+  el.classList.remove("hidden");
+  el.style.borderColor = isError ? "#81363b" : "#56351d";
+}
+
+function showPage(id) {
+  ["authPage","homePage","lobbyPage","game"].forEach(page => {
+    $(page).classList.toggle("hidden", page !== id);
+  });
+}
+
+function escapeHTML(value) {
+  return String(value).replace(/[&<>"']/g, char => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",
+    '"':"&quot;","'":"&#39;"
+  })[char]);
+}
+
+/* ==========================================================
+   AUTHENTIFICATION SUPABASE
+   ========================================================== */
+
+function authStatus(message, isError = false) {
+  status("authStatus", message, isError);
+}
+
+function requireSupabase() {
+  if (!supabaseClient) {
+    authStatus(
+      "Supabase n'est pas configuré. Ajoute l'URL de ton projet " +
+      "et sa clé publique dans le code avant de te connecter.",
+      true
+    );
+    return false;
+  }
+  return true;
+}
+
+$("loginBtn").addEventListener("click", async () => {
+  if (!requireSupabase()) return;
+  const email = $("email").value.trim();
+  const password = $("password").value;
+  if (!email || !password) {
+    authStatus("Entre ton adresse e-mail et ton mot de passe.", true);
+    return;
+  }
+
+  $("loginBtn").disabled = true;
+  authStatus("Connexion en cours…");
+
+  try {
+    const { data, error } = await supabaseClient.auth.signInWithPassword({
+      email, password
+    });
+    if (error) throw error;
+    state.user = data.user;
+    showPage("homePage");
+  } catch (error) {
+    authStatus(error.message || "Connexion impossible.", true);
+  } finally {
+    $("loginBtn").disabled = false;
+  }
+});
+
+$("signupBtn").addEventListener("click", async () => {
+  if (!requireSupabase()) return;
+  const email = $("email").value.trim();
+  const password = $("password").value;
+  if (!email || password.length < 8) {
+    authStatus("Entre un e-mail valide et un mot de passe d'au moins 8 caractères.", true);
+    return;
+  }
+
+  $("signupBtn").disabled = true;
+  authStatus("Création du compte…");
+
+  try {
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: {
+        emailRedirectTo: location.origin + location.pathname
       }
+    });
+    if (error) throw error;
 
-      $("location-btn").disabled = true;
-      setStatus("Demande de localisation en cours…");
+    if (data.session) {
+      state.user = data.user;
+      showPage("homePage");
+    } else {
+      authStatus("Compte créé. Vérifie tes e-mails pour confirmer ton inscription.");
+    }
+  } catch (error) {
+    authStatus(error.message || "Inscription impossible.", true);
+  } finally {
+    $("signupBtn").disabled = false;
+  }
+});
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          acceptPosition(position);
-          state.permissionGranted = true;
-          $("start-btn").disabled = false;
-          $("location-btn").disabled = false;
-          setStatus(
-            "Position obtenue. Précision estimée : " +
-            Math.round(position.coords.accuracy) + " mètres.",
-            "success"
-          );
-        },
-        (error) => {
-          $("location-btn").disabled = false;
-          $("start-btn").disabled = true;
+$("resetBtn").addEventListener("click", async () => {
+  if (!requireSupabase()) return;
+  const email = $("email").value.trim();
+  if (!email) {
+    authStatus("Entre ton adresse e-mail pour recevoir le lien de récupération.", true);
+    return;
+  }
+  try {
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
+      redirectTo: location.origin + location.pathname
+    });
+    if (error) throw error;
+    authStatus("Si cette adresse est enregistrée, un e-mail de récupération va être envoyé.");
+  } catch (error) {
+    authStatus(error.message || "Impossible d'envoyer le lien.", true);
+  }
+});
 
-          const messages = {
-            1: "Autorisation refusée. Vérifie les réglages de localisation du navigateur et réessaie.",
-            2: "Position indisponible. Vérifie le GPS et ta connexion, puis réessaie.",
-            3: "La demande a expiré. Réessaie dans un endroit où le GPS capte mieux."
-          };
+$("logoutBtn").addEventListener("click", async () => {
+  if (supabaseClient) {
+    const { error } = await supabaseClient.auth.signOut();
+    if (error) return showToast("Déconnexion impossible.");
+  }
+  stopGPS();
+  state.user = null;
+  state.room = null;
+  showPage("authPage");
+});
 
-          setStatus(messages[error.code] || "Impossible d'obtenir la position.", "error");
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 20000,
-          maximumAge: 0
-        }
+async function initializeAuth() {
+  if (!supabaseClient) {
+    showPage("authPage");
+    return;
+  }
+
+  const { data } = await supabaseClient.auth.getSession();
+  state.user = data.session?.user || null;
+  showPage(state.user ? "homePage" : "authPage");
+
+  supabaseClient.auth.onAuthStateChange((_event, session) => {
+    state.user = session?.user || null;
+    if (!state.user) showPage("authPage");
+  });
+}
+
+/* ==========================================================
+   SALONS — À RACCORDER AUX RPC SUPABASE
+   Les signatures SQL exactes doivent être vérifiées dans
+   ton projet avant d'appeler create_room ou join_room.
+   ========================================================== */
+
+function requireLogin() {
+  if (!state.user) {
+    showPage("authPage");
+    showToast("Connecte-toi pour continuer.");
+    return false;
+  }
+  return true;
+}
+
+function randomRoomCode() {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let code = "";
+  for (let i = 0; i < 6; i++) {
+    code += chars[Math.floor(Math.random() * chars.length)];
+  }
+  return code;
+}
+
+$("createRoomBtn").addEventListener("click", async () => {
+  if (!requireLogin()) return;
+
+  status("homeStatus",
+    "La création réelle doit être reliée à la fonction sécurisée create_room de Supabase.",
+    true
+  );
+
+  /*
+    À connecter au RPC réel :
+    supabaseClient.rpc("create_room", {
+      // paramètres exacts à vérifier dans Supabase
+    });
+
+    Le code du salon doit être généré et validé côté serveur,
+    jamais considéré comme sécurisé s'il est créé uniquement ici.
+  */
+});
+
+$("joinRoomBtn").addEventListener("click", async () => {
+  if (!requireLogin()) return;
+  const code = $("joinCode").value.trim().toUpperCase();
+  if (!code) {
+    status("homeStatus", "Entre le code du salon.", true);
+    return;
+  }
+
+  status("homeStatus",
+    "La fonction join_room doit être raccordée à ses paramètres SQL exacts avant de rejoindre un vrai salon.",
+    true
+  );
+
+  /*
+    À connecter au RPC réel :
+    supabaseClient.rpc("join_room", {
+      // code et paramètres exacts à vérifier
+    });
+  */
+});
+
+function renderLobby() {
+  $("lobbyCode").textContent = state.room?.code || "------";
+  $("lobbyCount").textContent = state.players.length + " joueur(s)";
+  $("startBtn").disabled = !state.isHost;
+
+  $("lobbyPlayers").innerHTML = state.players.map(player => `
+    <div class="playerrow">
+      <div class="avatar">${escapeHTML(player.name.slice(0,1).toUpperCase())}</div>
+      <div style="flex:1">
+        <strong>${escapeHTML(player.name)}</strong>
+        <div class="muted small">${player.ready ? "Prêt" : "En attente"}</div>
+      </div>
+      ${player.host ? '<span class="pill">HÔTE</span>' : ""}
+    </div>
+  `).join("");
+}
+
+$("copyCodeBtn").addEventListener("click", async () => {
+  const code = state.room?.code;
+  if (!code) return showToast("Aucun code de salon disponible.");
+  try {
+    await navigator.clipboard.writeText(code);
+    showToast("Code copié.");
+  } catch {
+    showToast("Copie non disponible dans ce navigateur.");
+  }
+});
+
+$("shareBtn").addEventListener("click", async () => {
+  const code = state.room?.code;
+  if (!code) return showToast("Aucun code de salon disponible.");
+  const data = {
+    title: "HIDEOUT",
+    text: "Rejoins ma partie HIDEOUT avec le code " + code,
+    url: location.href
+  };
+  if (navigator.share) {
+    try { await navigator.share(data); } catch {}
+  } else {
+    showToast("Partage non pris en charge. Copie le code du salon.");
+  }
+});
+
+$("readyBtn").addEventListener("click", () => {
+  showToast("Le statut prêt doit être enregistré et diffusé par Supabase.");
+});
+
+$("startBtn").addEventListener("click", () => {
+  if (!state.isHost) return;
+  showToast("Le lancement doit être validé côté serveur après vérification des joueurs.");
+});
+
+$("leaveRoomBtn").addEventListener("click", () => {
+  state.room = null;
+  state.players = [];
+  state.isHost = false;
+  showPage("homePage");
+});
+
+/* ==========================================================
+   GPS
+   La permission est demandée seulement quand elle est utile.
+   Le jeu doit fonctionner sur HTTPS.
+   ========================================================== */
+
+function requestGPS() {
+  if (!("geolocation" in navigator)) {
+    showToast("La géolocalisation n'est pas disponible.");
+    return;
+  }
+
+  navigator.geolocation.getCurrentPosition(
+    position => {
+      state.gps = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy
+      };
+      if (state.map) {
+        state.map.setView([state.gps.lat, state.gps.lng], 16);
+      }
+      updateZoneUI();
+      showToast("Position GPS reçue.");
+    },
+    error => {
+      const messages = {
+        1: "Autorisation GPS refusée. Active-la dans les réglages du navigateur.",
+        2: "Position indisponible. Vérifie le GPS du téléphone.",
+        3: "La demande GPS a expiré. Réessaie."
+      };
+      showToast(messages[error.code] || "Impossible d'obtenir la position.");
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 3000 }
+  );
+}
+
+function startGPSWatch() {
+  if (!navigator.geolocation) return;
+  stopGPS();
+  state.watchId = navigator.geolocation.watchPosition(
+    position => {
+      state.gps = {
+        lat: position.coords.latitude,
+        lng: position.coords.longitude,
+        accuracy: position.coords.accuracy
+      };
+      if (state.map) updateMyMarker();
+      updateZoneUI();
+    },
+    error => {
+      if (error.code === 1) {
+        showToast("La localisation est désactivée.");
+      }
+    },
+    { enableHighAccuracy: true, maximumAge: 3000, timeout: 15000 }
+  );
+}
+
+function stopGPS() {
+  if (state.watchId !== null) {
+    navigator.geolocation.clearWatch(state.watchId);
+    state.watchId = null;
+  }
+}
+
+/* ==========================================================
+   CARTE LEAFLET
+   Seule la position réelle de l'utilisateur est affichée.
+   Aucun faux joueur n'est ajouté à la carte.
+   ========================================================== */
+
+let myMarker = null;
+let currentCircle = null;
+let nextCircle = null;
+
+function initializeMap() {
+  if (state.map) {
+    state.map.invalidateSize();
+    return;
+  }
+
+  const start = state.gps
+    ? [state.gps.lat, state.gps.lng]
+    : [46.2, 6.15];
+
+  state.map = L.map("map", {
+    zoomControl: false,
+    attributionControl: true
+  }).setView(start, state.gps ? 16 : 12);
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 19,
+    attribution: "&copy; OpenStreetMap"
+  }).addTo(state.map);
+
+  L.control.zoom({ position: "bottomright" }).addTo(state.map);
+  updateMyMarker();
+}
+
+function updateMyMarker() {
+  if (!state.map || !state.gps) return;
+  const point = [state.gps.lat, state.gps.lng];
+
+  const icon = L.divIcon({
+    className: "",
+    html: '<div style="width:19px;height:19px;border-radius:50%;background:#ff852e;border:3px solid white;box-shadow:0 0 0 7px #ff852e44"></div>',
+    iconSize: [19,19],
+    iconAnchor: [9,9]
+  });
+
+  if (!myMarker) {
+    myMarker = L.marker(point, { icon }).addTo(state.map)
+      .bindPopup("Ta position");
+  } else {
+    myMarker.setLatLng(point);
+  }
+}
+
+function recenterMap() {
+  if (!state.map) return;
+  if (!state.gps) {
+    requestGPS();
+    return;
+  }
+  state.map.setView([state.gps.lat, state.gps.lng], 16);
+}
+
+/* ==========================================================
+   ZONE ET CHRONOMÈTRE
+   Les vraies valeurs de jeu doivent provenir du serveur.
+   ========================================================== */
+
+function formatTime(seconds) {
+  seconds = Math.max(0, Math.floor(seconds));
+  const minutes = Math.floor(seconds / 60);
+  const remaining = seconds % 60;
+  return String(minutes).padStart(2,"0") + ":" +
+         String(remaining).padStart(2,"0");
+}
+
+function updateZoneUI() {
+  if (!state.zone) return;
+
+  $("zoneRadius").textContent = Math.round(state.zone.radius) + " m";
+  $("zoneRadiusDetail").textContent = Math.round(state.zone.radius) + " m";
+
+  if (state.gps) {
+    const distance = state.zone.center.distanceTo(
+      L.latLng(state.gps.lat, state.gps.lng)
+    );
+    const inside = distance <= state.zone.radius;
+    $("zoneStatus").textContent = inside
+      ? "Tu es dans la zone."
+      : "Tu es en dehors de la zone.";
+    $("zoneStatus").style.color = inside ? "var(--green)" : "var(--red)";
+    $("zoneDetails").textContent = inside
+      ? "Ta position est dans le périmètre actuel."
+      : "Ta position semble en dehors du périmètre actuel.";
+  } else {
+    $("zoneStatus").textContent = "Active le GPS pour vérifier ta position.";
+  }
+}
+
+function startLocalGameClock(duration) {
+  clearInterval(state.timerInterval);
+  state.gameStartedAt = Date.now();
+  state.zone = {
+    center: L.latLng(
+      state.gps?.lat ?? 46.2,
+      state.gps?.lng ?? 6.15
+    ),
+    radius: Number($("radius").value),
+    minRadius: 50,
+    duration: duration,
+    shrinkEvery: 300,
+    nextShrinkAt: Date.now() + 300000
+  };
+
+  if (currentCircle) state.map.removeLayer(currentCircle);
+  if (nextCircle) state.map.removeLayer(nextCircle);
+
+  currentCircle = L.circle(state.zone.center, {
+    radius: state.zone.radius,
+    color: "#ff852e",
+    weight: 3,
+    fillColor: "#ff852e",
+    fillOpacity: 0.08
+  }).addTo(state.map);
+
+  nextCircle = L.circle(state.zone.center, {
+    radius: Math.max(state.zone.minRadius, state.zone.radius * 0.75),
+    color: "#ffb071",
+    weight: 2,
+    dashArray: "7 8",
+    fillOpacity: 0
+  }).addTo(state.map);
+
+  state.map.fitBounds(currentCircle.getBounds(), { padding: [35,35] });
+
+  state.timerInterval = setInterval(() => {
+    const elapsed = Math.floor((Date.now() - state.gameStartedAt) / 1000);
+    const remaining = Math.max(0, duration - elapsed);
+    $("timer").textContent = formatTime(remaining);
+
+    const untilShrink = Math.max(
+      0, Math.ceil((state.zone.nextShrinkAt - Date.now()) / 1000)
+    );
+    $("nextShrink").textContent = formatTime(untilShrink);
+    $("shrinkDetail").textContent = formatTime(untilShrink);
+
+    if (Date.now() >= state.zone.nextShrinkAt) {
+      state.zone.radius = Math.max(
+        state.zone.minRadius, state.zone.radius * 0.75
       );
-    }
+      state.zone.nextShrinkAt = Date.now() + state.zone.shrinkEvery * 1000;
 
-    function acceptPosition(position) {
-      state.latitude = position.coords.latitude;
-      state.longitude = position.coords.longitude;
-      state.accuracy = position.coords.accuracy;
-
-      if (state.mapReady) {
-        updateMapPosition();
-      }
-    }
-
-    function makePlayerIcon(role) {
-      return L.divIcon({
-        className: "",
-        html: '<div class="player-marker ' +
-          (role === "hunter" ? "hunter" : "") +
-          '"></div>',
-        iconSize: [19, 19],
-        iconAnchor: [9, 9]
-      });
-    }
-
-    function createMap() {
-      if (state.mapReady) {
-        state.map.invalidateSize();
-        return;
-      }
-
-      if (typeof L === "undefined") {
-        setMapStatus(
-          "La bibliothèque de carte n'a pas pu se charger. Vérifie ta connexion Internet."
-        );
-        return;
-      }
-
-      state.map = L.map("map", {
-        zoomControl: true,
-        attributionControl: true
-      }).setView([state.latitude, state.longitude], 17);
-
-      L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-        maxZoom: 19,
-        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-      }).addTo(state.map);
-
-      state.zoneCircle = L.circle(
-        [state.latitude, state.longitude],
-        {
-          radius: state.radius,
-          color: "#ff792f",
-          weight: 2,
-          opacity: 0.9,
-          fillColor: "#ff792f",
-          fillOpacity: 0.07,
-          dashArray: "7 7"
-        }
-      ).addTo(state.map);
-
-      state.accuracyCircle = L.circle(
-        [state.latitude, state.longitude],
-        {
-          radius: Math.max(5, state.accuracy || 20),
-          color: "#2778ee",
-          weight: 1,
-          fillColor: "#2778ee",
-          fillOpacity: 0.12
-        }
-      ).addTo(state.map);
-
-      state.ownMarker = L.marker(
-        [state.latitude, state.longitude],
-        { icon: makePlayerIcon(state.role) }
-      ).addTo(state.map);
-
-      state.ownMarker.bindPopup("Ta position GPS");
-
-      state.mapReady = true;
-      updateMapPosition();
-      setMapStatus(
-        "Carte chargée. Le point bleu représente ta position actuelle. " +
-        "Le cercle orange indique le périmètre choisi."
+      currentCircle.setRadius(state.zone.radius);
+      nextCircle.setRadius(
+        Math.max(state.zone.minRadius, state.zone.radius * 0.75)
       );
-
-      // Force Leaflet à recalculer les dimensions après affichage du panneau.
-      setTimeout(() => state.map && state.map.invalidateSize(), 250);
+      updateZoneUI();
     }
 
-    function updateMapPosition() {
-      if (!state.mapReady || state.latitude == null) return;
+    const progress = untilShrink / state.zone.shrinkEvery * 100;
+    $("zoneProgress").style.width = Math.max(0, Math.min(100, progress)) + "%";
 
-      const point = [state.latitude, state.longitude];
-
-      state.ownMarker.setLatLng(point);
-      state.zoneCircle.setLatLng(point);
-      state.zoneCircle.setRadius(state.radius);
-      state.accuracyCircle.setLatLng(point);
-      state.accuracyCircle.setRadius(Math.max(5, state.accuracy || 20));
-
-      $("radius-stat").textContent =
-        state.radius >= 1000
-          ? (state.radius / 1000).toLocaleString("fr-FR") + " km"
-          : state.radius + " m";
-
-      setGPSStatus("ACTIF");
+    if (remaining <= 0) {
+      clearInterval(state.timerInterval);
+      showToast("Temps écoulé.");
     }
+  }, 1000);
 
-    function startWatching() {
-      if (state.watchId !== null) return;
-      if (!navigator.geolocation) return;
+  updateZoneUI();
+}
 
-      state.watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          acceptPosition(position);
-          setGPSStatus("ACTIF");
-          setMapStatus(
-            "Position actualisée. Précision GPS estimée : " +
-            Math.round(position.coords.accuracy) + " m."
-          );
-        },
-        (error) => {
-          const message = error.code === 1
-            ? "L'accès GPS a été refusé ou désactivé."
-            : "Le GPS ne peut pas actualiser la position pour le moment.";
+/* ==========================================================
+   PANNEAUX DE JEU
+   ========================================================== */
 
-          setMapStatus(message);
-          setGPSStatus("INDISPONIBLE");
-        },
-        {
-          enableHighAccuracy: true,
-          maximumAge: 2000,
-          timeout: 20000
-        }
-      );
-    }
+function openSheet(panel, title) {
+  state.activeSheet = panel;
+  $("sheet").classList.remove("hidden");
+  $("sheetTitle").textContent = title;
 
-    function stopWatching() {
-      if (state.watchId !== null) {
-        navigator.geolocation.clearWatch(state.watchId);
-        state.watchId = null;
-      }
+  ["messagesPanel","zonePanel","optionsPanel","playersPanel"].forEach(id => {
+    $(id).classList.toggle("hidden", id !== panel);
+  });
 
-      setGPSStatus("ARRÊTÉ");
-      setMapStatus("Le partage GPS de cette page est arrêté.");
-    }
+  document.querySelectorAll(".nav button").forEach(button => {
+    button.classList.remove("active");
+  });
+}
 
-    function startGame() {
-      const name = $("player-name").value.trim();
+function closeSheet() {
+  $("sheet").classList.add("hidden");
+  state.activeSheet = null;
+}
 
-      if (!name) {
-        setStatus("Entre d'abord ton pseudo.", "error");
-        $("player-name").focus();
-        return;
-      }
+$("messagesNav").addEventListener("click", () => openSheet("messagesPanel","Messages"));
+$("zoneNav").addEventListener("click", () => openSheet("zonePanel","Zone"));
+$("optionsNav").addEventListener("click", () => openSheet("optionsPanel","Options"));
+$("closeSheet").addEventListener("click", closeSheet);
 
-      if (!state.permissionGranted ||
-          state.latitude == null ||
-          state.longitude == null) {
-        setStatus("Autorise d'abord l'accès à ta localisation.", "error");
-        return;
-      }
+$("playersToggle").addEventListener("click", () => {
+  const expanded = $("playersToggle").getAttribute("aria-expanded") === "true";
+  $("playersToggle").setAttribute("aria-expanded", String(!expanded));
+  if (expanded) {
+    closeSheet();
+  } else {
+    renderPlayers();
+    openSheet("playersPanel","Joueurs");
+  }
+});
 
-      state.name = name;
-      state.role = $("role-select").value;
-      state.radius = Number($("radius").value);
-      state.headstart = Number($("headstart").value);
+function renderPlayers() {
+  const alive = state.players.filter(player => !player.dead);
+  $("playerCount").textContent = alive.length + " en jeu";
+  $("playerDots").innerHTML = state.players.map(player => `
+    <span class="dot ${player.role === "hunter" ? "hunter" : ""} ${player.dead ? "dead" : ""}"
+      title="${escapeHTML(player.name)}"></span>
+  `).join("");
 
-      $("role-stat").textContent =
-        state.role === "hunter" ? "CHASSEUR" : "COUREUR";
+  $("playersList").innerHTML = state.players.map(player => `
+    <div class="playerrow">
+      <div class="dot ${player.role === "hunter" ? "hunter" : ""} ${player.dead ? "dead" : ""}"></div>
+      <div style="flex:1">
+        <strong>${escapeHTML(player.name)}</strong>
+        <div class="muted small">${player.dead ? "Éliminé" : "En jeu"}</div>
+      </div>
+      <span class="pill">${player.role === "hunter" ? "CHASSEUR" : "CACHÉ"}</span>
+    </div>
+  `).join("");
+}
 
-      $("role-badge").textContent =
-        state.role === "hunter" ? "CHASSEUR" : "COUREUR";
+$("messageForm").addEventListener("submit", event => {
+  event.preventDefault();
+  const input = $("messageInput");
+  const text = input.value.trim();
+  if (!text) return;
 
-      $("role-description").textContent =
-        state.role === "hunter"
-          ? "Dans cette version, ton rôle de démonstration est chasseur. La position des coureurs sera visible quand le vrai multijoueur sera connecté."
-          : "Dans cette version, ton rôle de démonstration est coureur. Les positions des chasseurs ne seront pas affichées. Le multijoueur réel reste à connecter.";
+  /*
+    Un vrai message multijoueur doit être enregistré dans
+    Supabase puis diffusé par Realtime. Ne pas stocker de
+    message local comme s'il avait été reçu par les autres.
+  */
+  showToast("L'envoi réel des messages sera activé après le raccordement Supabase.");
+  input.value = "";
+});
 
-      $("game-subtitle").textContent =
-        "Joueur : " + state.name + " — avance des coureurs : " +
-        state.headstart + " secondes.";
+$("recenterBtn").addEventListener("click", recenterMap);
+$("gpsRetryBtn").addEventListener("click", () => {
+  requestGPS();
+  startGPSWatch();
+});
 
-      $("runner-legend").classList.toggle("hidden", state.role === "runner");
-      $("hunter-legend").classList.toggle("hidden", state.role === "hunter");
+$("exitGameBtn").addEventListener("click", () => {
+  clearInterval(state.timerInterval);
+  stopGPS();
+  closeSheet();
+  state.room = null;
+  showPage("homePage");
+});
 
-      showScreen("game");
-      createMap();
-      startWatching();
-    }
+/* ==========================================================
+   DÉMARRAGE
+   ========================================================== */
 
-    $("location-btn").addEventListener("click", requestLocation);
-    $("start-btn").addEventListener("click", startGame);
+async function boot() {
+  await initializeAuth();
 
-    $("radius").addEventListener("change", () => {
-      state.radius = Number($("radius").value);
-      if (state.zoneCircle) {
-        state.zoneCircle.setRadius(state.radius);
-      }
-    });
+  /*
+    IMPORTANT :
+    - Les fonctions de création/rejoindre/lancement de salon
+      ne sont pas encore raccordées à leurs RPC serveur.
+    - Les rôles ne sont pas attribués localement.
+    - Aucun joueur fictif n'est injecté.
+    - La partie ne peut pas être considérée comme multijoueur
+      tant que Supabase et ses politiques ne sont pas raccordés.
+  */
+}
 
-    $("recenter-btn").addEventListener("click", () => {
-      if (!state.mapReady || state.latitude == null) {
-        setMapStatus("Ta position n'est pas disponible.");
-        return;
-      }
-
-      state.map.setView([state.latitude, state.longitude], 17);
-      setMapStatus("Carte recentrée sur ta position.");
-    });
-
-    $("stop-btn").addEventListener("click", stopWatching);
-
-    $("back-btn").addEventListener("click", () => {
-      stopWatching();
-      showScreen("setup");
-    });
-
-    window.addEventListener("resize", () => {
-      if (state.mapReady) state.map.invalidateSize();
-    });
-  </script>
+boot();
+</script>
 </body>
 </html>
