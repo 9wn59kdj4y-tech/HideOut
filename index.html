@@ -1474,6 +1474,19 @@
 #wheels .wheel-item {
   font-size: 13px;
 }
+/* Roulettes HIDEOUT : gestes tactiles */
+
+#wheels .wheel,
+#wheels .wheel-item,
+#wheels .wheel-arrow {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+#wheels .wheel-arrow {
+  -webkit-touch-callout: none;
+}
   </style>
 </head>
 
@@ -5067,71 +5080,114 @@
 
     renderWheels();
   }
+/* HIDEOUT — ROULETTES TACTILES V3 */
 
-  $("wheels").addEventListener(
-    "click",
-    event => {
-      const button =
-        event.target.closest(
-          "[data-delta]"
-        );
+const wheelsArea = $("wheels");
 
-      if (!button) return;
+let wheelGesture = null;
+let wheelHoldDelay = null;
+let wheelHoldRepeat = null;
 
-      const wheel =
-        button.closest("[data-wheel]");
+function stopWheelGesture() {
+  clearTimeout(wheelHoldDelay);
+  clearInterval(wheelHoldRepeat);
+  wheelHoldDelay = null;
+  wheelHoldRepeat = null;
+  wheelGesture = null;
+}
 
-      changeWheel(
-        wheel.dataset.wheel,
-        Number(button.dataset.delta)
-      );
-    }
-  );
+wheelsArea.addEventListener("pointerdown", event => {
+  if (event.button !== 0) return;
 
-  let wheelTouch = null;
+  const arrow = event.target.closest("[data-delta]");
+  const track = event.target.closest(".wheel");
 
-  $("wheels").addEventListener(
-    "touchstart",
-    event => {
-      const target =
-        event.target.closest(
-          "[data-wheel]"
-        );
+  if (!arrow && !track) return;
 
-      if (!target) return;
+  const item = event.target.closest("[data-wheel]");
+  if (!item) return;
 
-      wheelTouch = {
-        id: target.dataset.wheel,
-        y: event.touches[0].clientY
-      };
-    },
-    { passive: true }
-  );
+  stopWheelGesture();
 
-  $("wheels").addEventListener(
-    "touchend",
-    event => {
-      if (!wheelTouch) return;
+  wheelGesture = {
+    pointerId: event.pointerId,
+    id: item.dataset.wheel,
+    kind: arrow ? "arrow" : "swipe",
+    delta: arrow ? Number(arrow.dataset.delta) : 0,
+    lastY: event.clientY
+  };
 
-      const delta =
-        event.changedTouches[0].clientY -
-        wheelTouch.y;
+  wheelsArea.setPointerCapture(event.pointerId);
 
-      if (Math.abs(delta) > 12) {
-        changeWheel(
-          wheelTouch.id,
-          clamp(
-            Math.round(-delta / 35),
-            -10,
-            10
-          )
-        );
+  if (arrow) {
+    const id = wheelGesture.id;
+    const delta = wheelGesture.delta;
+
+    // Appui simple : une seule valeur
+    changeWheel(id, delta);
+
+    // Appui prolongé : défilement continu
+    wheelHoldDelay = setTimeout(() => {
+      wheelHoldRepeat = setInterval(() => {
+        if (wheelGesture?.kind === "arrow") {
+          changeWheel(id, delta);
+        }
+      }, 110);
+    }, 380);
+  }
+});
+
+wheelsArea.addEventListener("pointermove", event => {
+  const gesture = wheelGesture;
+
+  if (
+    !gesture ||
+    event.pointerId !== gesture.pointerId ||
+    gesture.kind !== "swipe"
+  ) return;
+
+  const difference = gesture.lastY - event.clientY;
+  const steps = Math.trunc(difference / 30);
+
+  if (steps !== 0) {
+    gesture.lastY -= steps * 30;
+    changeWheel(gesture.id, steps);
+  }
+});
+
+["pointerup", "pointercancel", "lostpointercapture"]
+  .forEach(name => {
+    wheelsArea.addEventListener(name, event => {
+      if (
+        wheelGesture &&
+        event.pointerId === wheelGesture.pointerId
+      ) {
+        stopWheelGesture();
       }
+    });
+  });
 
-      wheelTouch = null;
-    },
-    { passive: true }
+window.addEventListener("blur", stopWheelGesture);
+
+// Navigation au clavier également
+wheelsArea.addEventListener("keydown", event => {
+  if (event.key !== "Enter" && event.key !== " ") {
+    return;
+  }
+
+  const arrow = event.target.closest("[data-delta]");
+  if (!arrow) return;
+
+  const item = arrow.closest("[data-wheel]");
+  if (!item) return;
+
+  event.preventDefault();
+
+  changeWheel(
+    item.dataset.wheel,
+    Number(arrow.dataset.delta)
   );
+});
 
   $$("[data-room-mode]").forEach(button => {
     button.addEventListener("click", () => {
