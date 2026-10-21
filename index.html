@@ -827,6 +827,27 @@
   display: none !important;
 }
 
+/* HIDEOUT - LOGO AU PREMIER PLAN */
+
+.intro {
+  isolation: isolate;
+}
+
+.intro .intro-center {
+  position: absolute;
+  z-index: 9999 !important;
+  isolation: isolate;
+}
+
+.intro .intro-center .logo {
+  position: relative;
+  z-index: 10000 !important;
+  opacity: 1;
+  visibility: visible;
+  overflow: visible;
+  mix-blend-mode: normal;
+}
+
   </style>
 </head>
 
