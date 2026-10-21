@@ -4845,10 +4845,13 @@
 
   function calculateStages(config) {
     const count = clamp(
-      Math.floor(config.durationSec / 1050),
-      1,
-      9
-    );
+  Math.round(
+    Number(config.shrinkCount) ||
+    Math.floor(config.durationSec / 1050)
+  ),
+  1,
+  9
+   );
 
     const stages = [];
 
