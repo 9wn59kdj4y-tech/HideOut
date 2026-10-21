@@ -5119,25 +5119,38 @@
   });
 
   $$("[data-preset]").forEach(button => {
-    button.addEventListener("click", () => {
-      state.activePreset = button.dataset.preset;
-     $$("[data-preset]").forEach(item => {
-  item.classList.toggle("selected", item === button);
-  });
-      const preset = PRESETS[state.activePreset];
+  button.addEventListener("click", () => {
+    if (!state.editedSettings) return;
 
-    if (!preset) {
-    renderWheels();
-    return;
-   }
+    const selected = button.dataset.preset;
+    state.activePreset = selected;
+
+    if (PRESETS[selected]) {
       Object.assign(
         state.editedSettings,
-        preset
+        PRESETS[selected]
       );
+    }
 
-      renderWheels();
+    state.editedSettings.finalRadiusM = 100;
+
+    if (
+      selected === "short" &&
+      state.editedSettings.mode === "contamination"
+    ) {
+      state.editedSettings.mode = "normal";
+    }
+
+    $$("[data-preset]").forEach(item => {
+      item.classList.toggle(
+        "selected",
+        item === button
+      );
     });
+
+    renderWheels();
   });
+});
 
   // ==========================================================
   // 12. CRÉATION ET REJOINDRE UN SALON
