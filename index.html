@@ -4182,6 +4182,23 @@
 
         queueMicrotask(handle(async () => {
           if (state.user) {
+            const { data: sessionAllowed, error: sessionError } =
+  await state.supabase.rpc("ho_claim_session");
+
+if (sessionError || sessionAllowed !== true) {
+  await state.supabase.auth.signOut({
+    scope: "local"
+  });
+
+  notify(
+    sessionError
+      ? "Impossible de vérifier la session. Réessaie."
+      : "Ce compte est déjà connecté sur un autre appareil. Déconnecte-toi de cet appareil avant de réessayer.",
+    "error"
+  );
+
+  return;
+}
             await loadProfile();
 
             showScreen(
