@@ -4178,7 +4178,7 @@
   }
 
   function isUnlocked(id) {
-    if (!LOCKED_AVATARS.has(id)) {
+    if (STARTER_AVATARS.has(id)) {
       return true;
     }
 
