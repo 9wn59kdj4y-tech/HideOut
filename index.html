@@ -6088,13 +6088,13 @@ wheelsArea.addEventListener("keydown", event => {
       if (room.phase === "lobby") {
         stopGPS();
 
-        if (
-          state.screen !==
-          "roomSettingsScreen"
-        ) {
-          showScreen("lobbyScreen");
-          renderLobby();
-        }
+       if (state.screen !== "roomSettingsScreen") {
+       if (state.screen !== "lobbyScreen") {
+       showScreen("lobbyScreen");
+     }
+
+       renderLobby();
+    }
 
         return;
       }
