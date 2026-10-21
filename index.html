@@ -6169,31 +6169,58 @@ wheelsArea.addEventListener("keydown", event => {
   }
 
   function startRefresh() {
-    stopRefresh();
+  stopRefresh();
 
-    state.refreshTimer =
-      setInterval(
-        refreshRoom,
-        CONFIG.REFRESH_INTERVAL
-      );
+  // Actualisation de secours
+  state.refreshTimer = setInterval(
+    refreshRoom,
+    CONFIG.REFRESH_INTERVAL
+  );
 
-    state.clockTimer =
-      setInterval(updateTimers, 1000);
+  state.clockTimer = setInterval(
+    updateTimers,
+    1000
+  );
+
+  if (!state.supabase || !state.roomId) {
+    return;
   }
 
-  function stopRefresh() {
-    clearInterval(
-      state.refreshTimer
+  // Synchronisation rapide du salon
+  const channel = state.supabase.channel(
+    "hideout-lobby-" + state.roomId
+  );
+
+  state.roomChannel = channel;
+
+  channel
+    .on(
+      "broadcast",
+      { event: "changed" },
+      () => {
+        if (state.roomChannel === channel) {
+          refreshRoom();
+        }
+      }
+    )
+    .subscribe();
+}
+
+function stopRefresh() {
+  clearInterval(state.refreshTimer);
+  clearInterval(state.clockTimer);
+
+  state.refreshTimer = null;
+  state.clockTimer = null;
+
+  if (state.roomChannel && state.supabase) {
+    state.supabase.removeChannel(
+      state.roomChannel
     );
 
-    clearInterval(
-      state.clockTimer
-    );
-
-    state.refreshTimer = null;
-    state.clockTimer = null;
+    state.roomChannel = null;
   }
-
+}
   // ==========================================================
   // 18. RECONNEXION : 5 MINUTES
   // ==========================================================
