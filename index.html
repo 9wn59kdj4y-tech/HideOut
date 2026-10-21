@@ -4888,7 +4888,13 @@
       );
 
     if (!wheel) return;
-
+    if (
+  PRESETS[state.activePreset] &&
+  id !== "maxPlayers" &&
+  id !== "hunters"
+) {
+  return;
+}
     const values =
       wheelValues(wheel);
 
