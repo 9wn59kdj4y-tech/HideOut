@@ -4781,7 +4781,16 @@
       ],
       format: formatDistance
     },
-
+{
+  id: "shrinkCount",
+  name: "Nombre de rétrécissements",
+  values: range(1, 9, 1),
+  format: n => n + (
+    n === 1
+      ? " rétrécissement"
+      : " rétrécissements"
+    )
+  },
     {
       id: "finalRadiusM",
       name: "Rayon final",
