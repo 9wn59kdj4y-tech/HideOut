@@ -1264,6 +1264,92 @@
     animation: none;
   }
 }
+  /* HIDEOUT — NOUVELLE CONFIGURATION */
+
+.ho-config-v2 {
+  background: #121417;
+  color: #ffffff;
+  padding: 16px;
+  border-radius: 20px;
+}
+
+.ho-config-v2 .ho-section {
+  margin: 20px 0;
+}
+
+.ho-config-v2 .ho-title {
+  font-size: 14px;
+  font-weight: 800;
+  color: white;
+  margin-bottom: 12px;
+}
+
+.ho-config-v2 .ho-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.ho-config-v2 .ho-choice {
+  background: #24272c;
+  border: 1px solid #44474d;
+  border-radius: 14px;
+  padding: 15px 8px;
+  color: white;
+  text-align: center;
+  cursor: pointer;
+  transition:
+    transform .2s ease,
+    border-color .2s ease,
+    box-shadow .2s ease;
+}
+
+.ho-config-v2 .ho-choice.active {
+  background: #382414;
+  border: 2px solid #ff942d;
+  box-shadow:
+    0 0 12px rgba(255, 148, 45, .25),
+    inset 0 0 14px rgba(255, 148, 45, .08);
+}
+
+.ho-config-v2 .ho-choice:active {
+  transform: scale(.96);
+}
+
+.ho-config-v2 .ho-choice:disabled {
+  opacity: .4;
+  cursor: not-allowed;
+}
+
+.ho-config-v2 .ho-choice-icon {
+  display: block;
+  color: #ff942d;
+  font-size: 25px;
+  margin-bottom: 8px;
+}
+
+.ho-config-v2 .ho-wheel-box {
+  background: #22252a;
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+
+.ho-config-v2 .ho-wheel-value {
+  color: #ff982f;
+  font-size: 28px;
+  font-weight: 800;
+}
+
+.ho-config-v2 .ho-locked {
+  opacity: .55;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ho-config-v2 .ho-choice {
+    transition: none;
+  }
+}
   </style>
 </head>
 
