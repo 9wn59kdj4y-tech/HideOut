@@ -5011,7 +5011,10 @@
   $$("[data-preset]").forEach(button => {
     button.addEventListener("click", () => {
       state.activePreset = button.dataset.preset;
-       const preset = PRESETS[state.activePreset];
+     $$("[data-preset]").forEach(item => {
+  item.classList.toggle("selected", item === button);
+  });
+      const preset = PRESETS[state.activePreset];
 
     if (!preset) {
     renderWheels();
