@@ -721,6 +721,44 @@
   pointer-events: none;
 }
 
+/* ========================================
+   HIDEOUT - GAZON SOMBRE
+   ======================================== */
+
+.intro-grass {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12%;
+  z-index: 2;
+  pointer-events: none;
+
+  background: linear-gradient(
+    to bottom,
+    #101A13 0%,
+    #09110B 35%,
+    #040805 75%,
+    #020403 100%
+  );
+}
+
+.intro-grass::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+
+  background: repeating-linear-gradient(
+    95deg,
+    transparent 0px,
+    rgba(36, 58, 37, 0.45) 2px,
+    transparent 4px,
+    transparent 9px
+  );
+
+  opacity: 0.65;
+}
+
   </style>
 </head>
 
@@ -850,6 +888,9 @@
 <div class="intro-water" aria-hidden="true">
   <div class="intro-city intro-city-reflection"></div>
 </div>
+
+<!-- GAZON SOMBRE DE HIDEOUT -->
+<div class="intro-grass" aria-hidden="true"></div>
 
     <div class="intro-center">
       <div class="logo" aria-label="HIDEOUT">
