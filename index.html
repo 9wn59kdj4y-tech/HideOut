@@ -3642,34 +3642,41 @@
       }))
     );
 
-  function avatarSource(id) {
-    if (id === "hunter-tracker") {
-      return CONFIG.AVATAR_PATH +
-        "hunter-tracker.svg";
-    }
-
-    return CONFIG.AVATAR_PATH +
-      encodeURIComponent(id || "chat") +
-      ".png";
+  function avatarSource(id, ext = "png") {
+  if (id === "hunter-tracker") {
+    return CONFIG.AVATAR_PATH + "hunter-tracker.svg";
   }
+
+  return CONFIG.AVATAR_PATH + encodeURIComponent(id || "chat") + "." + ext;
+}
 
   function avatarHTML(id, size = 48) {
-    return `
-      <img
-        src="${avatarSource(id)}"
-        width="${size}"
-        height="${size}"
-        alt="Avatar HIDEOUT"
-        loading="lazy"
-        style="
-          width:${size}px;
-          height:${size}px;
-          object-fit:contain;
-          flex-shrink:0;
-        "
-      >
-    `;
-  }
+  const safeId = id || "chat";
+  const lowerSrc = avatarSource(safeId, "png");
+  const upperSrc = avatarSource(safeId, "PNG");
+
+  return `
+    <img
+      src="${lowerSrc}"
+      width="${size}"
+      height="${size}"
+      alt="Avatar HIDEOUT"
+      loading="lazy"
+      onerror="
+        if (!this.dataset.fallbackTried) {
+          this.dataset.fallbackTried = '1';
+          this.src='${upperSrc}';
+        }
+      "
+      style="
+        width:${size}px;
+        height:${size}px;
+        object-fit:contain;
+        flex-shrink:0;
+      "
+    >
+  `;
+}
 
   // ==========================================================
   // 3. ÉTAT GLOBAL DU JEU
