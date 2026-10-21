@@ -7222,10 +7222,19 @@
     const intro = $("intro");
 const introButton = intro;
 
+if (sessionStorage.getItem("hideout_intro_seen") === "1") {
+  if (intro) {
+    intro.style.display = "none";
+  }
+
+  await enterGame();
+  return;
+  }
     if (intro && introButton) {
       introButton.addEventListener(
         "click",
-        handle(async () => {
+        handle(async () => {  
+         sessionStorage.setItem("hideout_intro_seen", "1");
           intro.classList.add("animate");
 
           await new Promise(
