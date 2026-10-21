@@ -1034,7 +1034,43 @@
   opacity: 0;
   transition: opacity 0.8s ease;
 }
+/* HIDEOUT — Grand logo officiel */
 
+#intro .intro-center {
+  width: 100% !important;
+  max-width: none !important;
+  z-index: 100 !important;
+}
+
+#intro .intro-center .logo {
+  font-size: clamp(60px, 16vw, 160px) !important;
+  font-weight: 900 !important;
+  letter-spacing: -0.055em !important;
+  white-space: nowrap !important;
+  overflow: visible !important;
+}
+
+#intro .logo-hide {
+  color: #33363b !important;
+  -webkit-text-stroke: 1px rgba(255,255,255,.65);
+  text-shadow:
+    0 0 15px rgba(255,255,255,.55),
+    0 5px 12px rgba(0,0,0,.9);
+}
+
+#intro .logo-out {
+  color: #ff9f1c !important;
+  text-shadow:
+    0 0 18px rgba(255,159,28,.65),
+    0 5px 12px rgba(0,0,0,.9);
+}
+
+#intro .logo-split,
+#intro .logo-split::before {
+  color: white !important;
+  background-color: white !important;
+  border-color: white !important;
+}
   </style>
 </head>
 
