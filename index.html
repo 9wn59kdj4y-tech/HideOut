@@ -4889,7 +4889,24 @@
     if (!config) return;
 
     $("wheels").innerHTML =
-      WHEEL_SETTINGS.map(wheel => {
+      WHEEL_SETTINGS
+  .filter(wheel => {
+    const duo = config.mode === "duo";
+
+    const alwaysAvailable =
+      wheel.id === "maxPlayers" ||
+      wheel.id === "hunters";
+
+    if (alwaysAvailable) {
+      return !duo;
+    }
+
+    return (
+      state.activePreset === "custom" &&
+      wheel.id !== "finalRadiusM"
+    );
+  })
+  .map(wheel => {
         const values =
           wheelValues(wheel);
 
