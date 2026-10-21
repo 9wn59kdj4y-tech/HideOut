@@ -4717,6 +4717,8 @@
       shrinkCount: 3,
       
       lagSec: 180,
+      gpsUncertaintyEnabled: false,
+      gpsUncertaintyRadiusM: 100,
       gpsIntervalSec: 10,
 
       mode: "normal",
@@ -4798,7 +4800,12 @@
       values: range(100, 20000, 50),
       format: formatDistance
     },
-
+    {
+  id: "gpsUncertaintyRadiusM",
+  name: "Rayon d'incertitude GPS",
+  values: range(0, 300, 25),
+  format: n => n + " m"
+    },
     {
       id: "lagSec",
       name: "Retard des positions",
@@ -4929,7 +4936,15 @@
     $("wheels").innerHTML =
       WHEEL_SETTINGS
   .filter(wheel => {
-    const duo = config.mode === "duo";
+   
+    if (wheel.id === "gpsUncertaintyRadiusM") {
+  return (
+    state.activePreset === "custom" &&
+    config.gpsUncertaintyEnabled === true
+  );
+}
+    
+const duo = config.mode === "duo";
 
     const alwaysAvailable =
       wheel.id === "maxPlayers" ||
@@ -5010,7 +5025,79 @@
           </div>
         `;
       }).join("");
+    if (state.activePreset === "custom") {
+  const enabled =
+    config.gpsUncertaintyEnabled === true;
 
+  $("wheels").insertAdjacentHTML("afterbegin", `
+    <div style="
+      grid-column:1/-1;
+      padding:16px;
+      background:#22252a;
+      border:1px solid #484b51;
+      border-radius:16px;
+      color:white;
+    ">
+      <div style="
+        font-weight:800;
+        margin-bottom:12px;
+      ">
+        📡 INCERTITUDE GPS
+      </div>
+
+      <div style="display:flex;gap:10px;">
+        <button type="button"
+          data-uncertainty="off"
+          style="
+            flex:1;
+            padding:12px;
+            border-radius:12px;
+            border:2px solid ${enabled ? "#444" : "#ff942d"};
+            background:${enabled ? "#292c31" : "#382414"};
+            color:white;
+            font-weight:800;
+          ">
+          OFF
+        </button>
+
+        <button type="button"
+          data-uncertainty="on"
+          style="
+            flex:1;
+            padding:12px;
+            border-radius:12px;
+            border:2px solid ${enabled ? "#ff942d" : "#444"};
+            background:${enabled ? "#382414" : "#292c31"};
+            color:white;
+            font-weight:800;
+          ">
+          ON
+        </button>
+      </div>
+
+      <p style="
+        margin:14px 0 0;
+        color:#d1d3d8;
+        font-size:13px;
+      ">
+        ${enabled
+          ? "Zone approximative : choisis le rayon avec la roulette."
+          : "📍 Position exacte : aucun cercle d'incertitude."}
+      </p>
+    </div>
+  `);
+
+  $("wheels")
+    .querySelectorAll("[data-uncertainty]")
+    .forEach(button => {
+      button.addEventListener("click", () => {
+        state.editedSettings.gpsUncertaintyEnabled =
+          button.dataset.uncertainty === "on";
+
+        renderWheels();
+      });
+    });
+}
     const stages =
       calculateStages(config);
 
