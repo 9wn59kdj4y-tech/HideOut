@@ -6427,12 +6427,8 @@ wheelsArea.addEventListener("keydown", event => {
               ) +
               " m";
 
-            const interval =
-              (
-                state.room?.config
-                  ?.gpsIntervalSec || 10
-              ) * 1000;
-
+            const interval = 1000; 
+            
             if (
               Date.now() -
               state.lastPositionSent <
