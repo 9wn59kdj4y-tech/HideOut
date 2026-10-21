@@ -1458,6 +1458,22 @@
     transition: none;
   }
 }
+ /* HIDEOUT — Roulettes en deux colonnes */
+
+#wheels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#wheels .wheel-control {
+  min-width: 0;
+  width: 100%;
+}
+
+#wheels .wheel-item {
+  font-size: 13px;
+}
   </style>
 </head>
 
