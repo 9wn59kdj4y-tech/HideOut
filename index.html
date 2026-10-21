@@ -7665,6 +7665,22 @@ wheelsArea.addEventListener("keydown", event => {
   // ==========================================================
 
   async function startHideout() {
+  // HIDEOUT — Invitation reçue par lien
+  const invitation = new URLSearchParams(
+    window.location.search
+  ).get("join");
+
+  if (invitation) {
+    const code = invitation.trim().toUpperCase();
+
+    if (/^[A-Z0-9]{3,20}$/.test(code)) {
+      sessionStorage.setItem(
+        "hideout_pending_join",
+        code
+      );
+    }
+  }
+   
     const app = $("app");
 
     if (app) {
