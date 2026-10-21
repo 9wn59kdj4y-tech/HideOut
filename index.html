@@ -670,6 +670,116 @@
     aria-label="Entrer dans HIDEOUT"
   >
     <div class="intro-city" aria-hidden="true"></div>
+    
+<!-- STATUE DE LA LIBERTÉ -->
+
+<div
+  class="intro-statue"
+  aria-hidden="true"
+  style="
+    position:absolute;
+    left:7%;
+    top:34%;
+    width:clamp(65px,15vw,110px);
+    height:27%;
+    z-index:3;
+    pointer-events:none;
+  "
+>
+  <svg
+    viewBox="0 0 110 240"
+    width="100%"
+    height="100%"
+    preserveAspectRatio="xMidYMax meet"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <defs>
+      <filter id="liberty-glow"
+        x="-150%" y="-150%"
+        width="400%" height="400%">
+        <feGaussianBlur stdDeviation="5"/>
+      </filter>
+    </defs>
+
+    <!-- SOCLE -->
+    <path d="M20 220 H90 V238 H20Z"
+      fill="#020405"/>
+    <path d="M28 202 H82 V220 H28Z"
+      fill="#080E11"/>
+
+    <!-- ROBE -->
+    <path
+      d="M44 91 L65 91
+         L80 202 H27Z"
+      fill="#101D20"
+    />
+
+    <!-- PLIS -->
+    <path
+      d="M48 103 L38 199
+         M61 105 L70 199"
+      stroke="#345155"
+      stroke-width="2"
+      fill="none"
+    />
+
+    <!-- BRAS LEVÉ -->
+    <path
+      d="M44 106 L28 79
+         L22 32 L32 29
+         L37 72 L57 95Z"
+      fill="#152B2E"
+    />
+
+    <!-- TÊTE -->
+    <ellipse
+      cx="54" cy="70"
+      rx="13" ry="17"
+      fill="#20383B"
+    />
+
+    <!-- COURONNE -->
+    <path
+      d="M40 60
+         L34 44 L45 51
+         L47 35 L53 49
+         L60 32 L62 50
+         L76 42 L68 59Z"
+      fill="#29484A"
+    />
+
+    <!-- TABLETTE -->
+    <path
+      d="M68 108 L84 119
+         L76 144 L60 132Z"
+      fill="#263F42"
+    />
+
+    <!-- TORCHE -->
+    <path
+      d="M20 31 L17 16
+         H33 L29 31Z"
+      fill="#253B3F"
+    />
+
+    <!-- HALO LUMINEUX -->
+    <ellipse
+      cx="25" cy="11"
+      rx="13" ry="17"
+      fill="#FFE600"
+      opacity=".9"
+      filter="url(#liberty-glow)"
+    />
+
+    <!-- FLAMME -->
+    <path
+      d="M25 0
+         C33 9 35 15 25 20
+         C16 16 19 8 25 0Z"
+      fill="#FFF36B"
+    />
+  </svg>
+</div>
 
     <div class="intro-center">
       <div class="logo" aria-label="HIDEOUT">
