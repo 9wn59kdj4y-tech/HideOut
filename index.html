@@ -1105,6 +1105,84 @@
   background-color: white !important;
   border-color: white !important;
 }
+/* =================================
+   HIDEOUT - TRANSITION CINEMATIQUE
+   ================================= */
+
+/* Barre diagonale blanche */
+#intro::after {
+  content: "";
+  display: block !important;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 5px;
+  height: 0;
+  background: #ffffff;
+  box-shadow:
+    0 0 14px 3px rgba(255,255,255,.85),
+    0 0 40px 8px rgba(255,255,255,.35);
+  transform: translate(-50%, -50%) rotate(-45deg);
+  opacity: 0;
+  z-index: 100001;
+  pointer-events: none;
+}
+
+/* La barre traverse tout l'écran */
+#intro.animate::after {
+  animation: hideoutSlash 1.2s ease-in forwards;
+}
+
+@keyframes hideoutSlash {
+  0% {
+    height: 15px;
+    opacity: 1;
+  }
+  55% {
+    height: 160vmax;
+    opacity: 1;
+  }
+  80% {
+    height: 160vmax;
+    opacity: 1;
+  }
+  100% {
+    height: 160vmax;
+    opacity: 0;
+  }
+}
+
+/* Calque du flash blanc */
+#intro::before {
+  content: "";
+  display: block !important;
+  position: absolute;
+  inset: 0;
+  background: #ffffff;
+  opacity: 0;
+  z-index: 100002;
+  pointer-events: none;
+}
+
+/* Flash pendant la séparation */
+#intro.animate::before {
+  animation: hideoutFlash 1.2s ease-in forwards;
+}
+
+@keyframes hideoutFlash {
+  0%, 25% {
+    opacity: 0;
+  }
+  55% {
+    opacity: .25;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
   </style>
 </head>
 
