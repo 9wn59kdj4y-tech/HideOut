@@ -1203,6 +1203,67 @@
   background: #ffffff !important;
   box-shadow: 0 3px 5px rgba(0,0,0,0.75);
 }
+  /* HIDEOUT — Alertes rouges néon */
+
+.toast.error {
+  position: fixed;
+  border: 2px solid #ff4055;
+  border-radius: 17px;
+  padding: 18px 48px;
+  color: #fff0f2;
+  background: linear-gradient(
+    145deg, #340b14, #17070b
+  );
+  font-weight: 700;
+  text-align: center;
+
+  box-shadow:
+    inset 0 0 18px rgba(255, 45, 70, .16),
+    0 0 8px rgba(255, 45, 70, .85),
+    0 0 28px rgba(255, 45, 70, .55),
+    0 0 65px rgba(255, 30, 60, .22),
+    0 18px 36px rgba(0, 0, 0, .65);
+}
+
+.toast.error::before,
+.toast.error::after {
+  content: "⚠";
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  color: #ff6070;
+  font-size: 23px;
+  text-shadow:
+    0 0 8px #ff3048,
+    0 0 20px #ff3048;
+}
+
+.toast.error::before {
+  left: 12px;
+}
+
+.toast.error::after {
+  right: 12px;
+}
+
+.toast.error.visible {
+  animation: hideoutErrorShake .45s ease-out;
+}
+
+@keyframes hideoutErrorShake {
+  0%   { transform: translate(0, 20px); }
+  25%  { transform: translate(-6px, 0); }
+  45%  { transform: translate(6px, 0); }
+  65%  { transform: translate(-3px, 0); }
+  85%  { transform: translate(2px, 0); }
+  100% { transform: translate(0, 0); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast.error.visible {
+    animation: none;
+  }
+}
   </style>
 </head>
 
