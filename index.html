@@ -4164,9 +4164,27 @@
       data?.session?.user || null;
 
     if (state.user) {
-      await loadProfile();
-    }
+  const { data: allowed, error } =
+    await state.supabase.rpc("ho_claim_session");
 
+  if (error || allowed !== true) {
+    await state.supabase.auth.signOut({
+      scope: "local"
+    });
+
+    state.user = null;
+    state.profile = null;
+
+    notify(
+      error
+        ? "Impossible de vérifier votre session."
+        : "Ce compte est déjà connecté sur un autre appareil.",
+      "error"
+    );
+  } else {
+    await loadProfile();
+  }
+}
     state.supabase.auth.onAuthStateChange(
       (_event, session) => {
         const previousId = state.user?.id;
