@@ -5383,15 +5383,31 @@ wheelsArea.addEventListener("keydown", event => {
     Number(arrow.dataset.delta)
   );
 });
+$$("[data-room-mode]").forEach(button => {
+  button.addEventListener("click", () => {
+    const config = state.editedSettings;
+    const mode = button.dataset.roomMode;
 
-  $$("[data-room-mode]").forEach(button => {
-    button.addEventListener("click", () => {
-      state.editedSettings.mode =
-        button.dataset.roomMode;
+    config.mode = mode;
 
-      renderWheels();
-    });
+    if (mode === "duo") {
+      config.maxPlayers = 2;
+      config.hunters = 1;
+    } else {
+      config.maxPlayers = Math.max(
+        3,
+        config.maxPlayers
+      );
+
+      config.hunters = Math.min(
+        config.hunters,
+        config.maxPlayers - 1
+      );
+    }
+
+    renderWheels();
   });
+});
 
   $$("[data-center]").forEach(button => {
     button.addEventListener("click", () => {
