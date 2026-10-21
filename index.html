@@ -3755,11 +3755,11 @@
   // 4. NOTIFICATIONS
   // ==========================================================
 
-  function notify(message) {
+    function notify(message, type = "info") {
     const element = $("toast");
 
     if (!element) return;
-
+    element.classList.toggle("error", type === "error");
     element.textContent = message;
     element.hidden = false;
     element.classList.add("visible");
