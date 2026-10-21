@@ -4384,9 +4384,18 @@
       p_avatar: "chat"
     });
 
-    await loadProfile();
+  await loadProfile();
 
-    showScreen("homeScreen");
+if (sessionStorage.getItem("hideout_pending_join")) {
+  await resumeRoom();
+
+  if (state.roomId) {
+    return;
+  }
+}
+
+showScreen("homeScreen");
+  
   });
 
   function xpRequiredForLevel(level) {
