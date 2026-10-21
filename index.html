@@ -5442,7 +5442,8 @@ wheelsArea.addEventListener("keydown", event => {
         await navigator.share({
           title: "HIDEOUT",
           text: message,
-          url: location.href
+          url: location.origin + location.pathname +
+          "?join=" + encodeURIComponent(state.room.code)
         });
       } catch (error) {
         if (error.name !== "AbortError") {
