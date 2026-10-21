@@ -5693,7 +5693,11 @@ $$("[data-room-mode]").forEach(button => {
 
     $("startRoom").disabled =
       !isHost() ||
-      room.players.length < 4 ||
+      (
+  room.config.mode === "duo"
+    ? room.players.length !== 2
+    : room.players.length < 3
+) ||
       room.players.some(
         player => !player.ready
       );
@@ -6028,11 +6032,19 @@ $$("[data-room-mode]").forEach(button => {
       );
     }
 
-    if (room.players.length < 4) {
-      throw new Error(
-        "Il faut au moins 4 joueurs."
-      );
-    }
+  const duo = room.config.mode === "duo";
+
+if (
+  duo
+    ? room.players.length !== 2
+    : room.players.length < 3
+) {
+  throw new Error(
+    duo
+      ? "Le mode Duo nécessite exactement 2 joueurs."
+      : "Il faut au moins 3 joueurs."
+  );
+}
 
     if (
       room.players.some(
