@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover" />
+<meta name="theme-color" content="#0d0f12" />
+<title>HIDEOUT — Prototype de roulette</title>
+<style>
+:root{color-scheme:dark;--orange:#ff861e;--gold:#ffc374;--bg:#0b0e12;--text:#faf3ec}
+*{box-sizing:border-box}html,body{min-height:100%;margin:0}
+body{font-family:ui-sans-serif,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--text);background:radial-gradient(ellipse 80% 34% at 50% 58%,#6c30132b,transparent 86%),radial-gradient(ellipse 80% 35% at 50% 0,#29303a8c,transparent),#0a0d11;display:flex;justify-content:center;align-items:center;padding:23px 13px max(24px,env(safe-area-inset-bottom))}
+.ambient{position:fixed;left:50%;top:57%;width:76vw;max-width:530px;height:280px;transform:translate(-50%,-50%);background:#f2771325;filter:blur(65px);border-radius:60%;pointer-events:none}.app{position:relative;width:100%;max-width:520px;text-align:center}
+.eyebrow{display:flex;justify-content:center;align-items:center;gap:9px;color:#ffad62;letter-spacing:3px;font-weight:900;font-size:11px}.eyebrow:before,.eyebrow:after{content:"";width:24px;height:1px;background:#dc792d}
+h1{font-size:clamp(40px,10vw,56px);letter-spacing:4px;font-weight:1000;margin:8px 0 0;line-height:1.05;text-shadow:0 1px 18px #ff851b32}.sub{font-size:13px;color:#aeb2bb;margin:12px 0 24px}.status{border:1px solid #514335;background:linear-gradient(#22232a,#14171c);border-radius:12px;display:flex;justify-content:space-between;align-items:center;padding:12px 14px;margin-bottom:22px;box-shadow:inset 0 1px #ffffff14}.status span{font-size:11px;color:#d2b18b;font-weight:800;letter-spacing:1px}.status strong{font-size:12px;color:#fff}
+.machine{position:relative;border:2px solid #bf6324;border-radius:25px;background:linear-gradient(135deg,#44444a 0%,#23252b 10%,#171a20 70%,#2b2a2d);padding:14px 12px 17px;box-shadow:inset 0 2px 0 #ffe4b140,inset 0 0 25px #ff8f1512,0 0 0 5px #17191c,0 0 16px #f7792977,0 0 60px #c2541645,0 27px 45px #0009}.machine:before{content:"";position:absolute;top:6px;left:16%;right:16%;height:2px;background:linear-gradient(90deg,transparent,#ffc18caa,transparent);border-radius:99px}.machine-heading{display:flex;align-items:center;justify-content:center;gap:7px;margin:0 0 14px;font-size:11px;font-weight:900;letter-spacing:2px;color:#e1af81}.light{width:6px;height:6px;border-radius:50%;background:#ffb165;box-shadow:0 0 8px #ff861e,0 0 14px #ff861e}
+.slot-area{position:relative;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.window{position:relative;overflow:hidden;height:210px;isolation:isolate;border:1.5px solid #9b582d;border-radius:12px;background:linear-gradient(90deg,#101216,#252b32 49%,#101216);box-shadow:inset 0 0 18px #000,inset 0 0 2px #f6a05555}.window:before,.window:after{content:"";position:absolute;z-index:4;left:0;right:0;height:54px;pointer-events:none}.window:before{top:0;background:linear-gradient(#12141a 0%,#12141ae0 25%,transparent)}.window:after{bottom:0;background:linear-gradient(transparent,#12141ae0 80%,#12141a)}.track{position:absolute;top:0;left:0;width:100%;will-change:transform}.tile{height:112px;width:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;padding:6px 2px}.character{width:min(76px,77%);height:76px;display:grid;place-items:center;position:relative;filter:drop-shadow(0 7px 7px #0009)}.character img{width:100%;height:100%;object-fit:contain}.character .emoji{font-size:45px;line-height:1}.tile-name{font-size:10px;color:#f6ddc8;font-weight:850;line-height:1.1;white-space:nowrap;max-width:100%;overflow:hidden;text-overflow:ellipsis}.crosshair{position:absolute;z-index:5;pointer-events:none;top:50%;height:113px;transform:translateY(-50%);left:-4px;right:-4px;border-top:2px solid #fba354;border-bottom:2px solid #fba354;box-shadow:0 0 11px #fa7b2860,inset 0 0 18px #ff8c1e14;border-radius:7px}.arrows{position:absolute;z-index:6;top:50%;left:-12px;right:-12px;display:flex;justify-content:space-between;transform:translateY(-50%);color:#ffa044;text-shadow:0 0 15px #ff8816;font-size:18px}.arrows span:last-child{transform:rotate(180deg)}.floor-label{margin:16px 0 0;color:#8d9099;text-transform:uppercase;letter-spacing:2px;font-size:10px;font-weight:800}.machine.spinning{box-shadow:inset 0 2px 0 #ffe4b140,0 0 0 5px #17191c,0 0 29px #ff8829aa,0 0 85px #ed651b60,0 27px 45px #0009}.machine.won{animation:flash .75s ease-in-out 2}.action{appearance:none;width:100%;margin-top:24px;border:none;border-radius:15px;background:linear-gradient(180deg,#ffb044,#ff861e 60%,#e65b0d);padding:17px 12px;color:#211207;font-size:14px;font-weight:1000;letter-spacing:1.5px;box-shadow:inset 0 2px 1px #ffffff8c,0 5px 0 #8b390b,0 10px 30px #ff7b1e47;cursor:pointer;touch-action:manipulation}.action:disabled{opacity:.7;cursor:default}.action:active:not(:disabled){transform:translateY(3px);box-shadow:0 2px 0 #8b390b}.result{margin-top:20px;border:1px solid #82532c;background:linear-gradient(135deg,#242127,#141820);border-radius:16px;padding:18px 12px;box-shadow:0 0 35px #ff711822;animation:appear .5s ease-out}.result[hidden]{display:none}.result h2{font-size:16px;letter-spacing:1.1px;color:#ffa745;margin:0 0 12px}.winner-art{display:grid;place-items:center;height:110px}.winner-art .character{height:105px;width:105px}.winner-art .emoji{font-size:68px}.winner-name{font-size:25px;font-weight:1000;margin:4px 0}.winner-category{color:#aeb2bd;font-size:12px}.hint{font-size:11px;color:#777e89;line-height:1.6;margin:20px auto 0;max-width:360px}.test-pill{display:inline-block;background:#272d36;border:1px solid #3d434b;color:#e5d2b9;font-size:10px;padding:5px 10px;border-radius:30px;margin-bottom:8px;letter-spacing:1px}
+@keyframes flash{0%,100%{filter:brightness(1)}40%{filter:brightness(1.65)}}@keyframes appear{from{opacity:0;transform:translateY(16px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+@media(max-width:350px){.slot-area{gap:5px}.machine{padding:14px 8px 17px}.tile-name{font-size:9px}.character{height:67px}.character .emoji{font-size:39px}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01ms!important;animation-iteration-count:1!important;scroll-behavior:auto!important;transition-duration:.01ms!important}}
+</style>
+</head>
+<body>
+<div class="ambient" aria-hidden="true"></div>
+<main class="app">
+ <div class="test-pill">PROTOTYPE INDÉPENDANT — AUCUNE SAUVEGARDE</div>
+ <div class="eyebrow">HIDEOUT</div>
+ <h1>DÉBLOCAGE</h1>
+ <p class="sub">Trois rouleaux. Un nouveau personnage.</p>
+ <div class="status"><span>RÉCOMPENSE DE NIVEAU</span><strong>MODE DÉMONSTRATION</strong></div>
+ <section id="machine" class="machine" aria-label="Roulette de déblocage à trois rouleaux">
+   <p class="machine-heading"><span class="light"></span> PERSONNAGE MYSTÈRE <span class="light"></span></p>
+   <div class="slot-area">
+     <div class="window"><div class="track" id="track0"></div></div>
+     <div class="window"><div class="track" id="track1"></div></div>
+     <div class="window"><div class="track" id="track2"></div></div>
+     <div class="crosshair"></div><div class="arrows" aria-hidden="true"><span>▶</span><span>▶</span></div>
+   </div>
+   <p class="floor-label">Les trois rouleaux s'alignent sur le même avatar</p>
+ </section>
+ <button id="spin" class="action" type="button">✦ DÉBLOQUER UN PERSONNAGE</button>
+ <section id="result" class="result" hidden aria-live="polite"><h2>✦ NOUVEAU PERSONNAGE DÉBLOQUÉ ! ✦</h2><div id="winnerArt" class="winner-art"></div><div class="winner-name" id="winnerName"></div><div class="winner-category" id="winnerCategory"></div></section>
+ <p class="hint">Cette page est une démonstration visuelle. Elle ne change ni ton niveau, ni tes avatars, ni les données Supabase. Le tirage définitif devra être sécurisé côté serveur.</p>
+</main>
+<script>
+"use strict";
+const GROUPS={
+"Animaux":["Chat","Chien","Renard","Loup","Ours","Panda","Lapin","Koala","Tigre","Lion","Pingouin","Hibou","Grenouille","Axolotl","Raton laveur","Hérisson","Hamster","Paresseux","Pieuvre","Requin"],
+"Nourriture":["Burger","Pizza","Donut","Cookie","Fraise","Pastèque","Citron","Avocat","Sushi","Taco","Pop-corn","Glace","Croissant","Bretzel","Champignon","Noix de coco","Bubble tea","Pomme","Cerise","Œuf au plat"],
+"Fantastique":["Dragon","Fantôme","Vampire","Momie","Squelette","Slime","Golem","Licorne","Phénix","Yéti","Démon miniature","Ange miniature","Sorcière","Magicien","Gobelin","Cyclope","Griffon","Monstre à trois yeux","Esprit de forêt","Créature des ombres"],
+"Espace et technologie":["Astronaute","Alien","Robot","Petit OVNI","Planète Saturne","Lune","Étoile filante","Météorite","Trou noir","Satellite","Robot rétro","Robot holographique","Cyber-boule","Écran pixelisé","Batterie vivante","Console rétro","Disquette vivante","Drone","Cosmonaute","Comète"],
+"Nature et éléments":["Nuage","Nuage orageux","Soleil","Goutte d’eau","Flamme","Glaçon","Volcan","Cactus","Tournesol","Trèfle","Feuille d’automne","Cristal","Rocher","Boule de neige","Arc-en-ciel","Tornade","Éclair","Bulle de savon","Corail","Planète Terre"],
+"Objets et ville":["Ninja","Pirate","Chevalier","Samouraï","Viking","Détective","Espion","Skateur","Graffeur","DJ","Casque audio","Casquette vivante","Ballon de basket","Ballon de foot","Dé à jouer","Rubik's Cube","Ampoule","Coffre au trésor","Bombe de peinture","Petit coffre-fort"]
+};
+const starters=new Set(["chat","burger","fantome","astronaute","nuage","ballon-de-foot"]);
+function slug(s){return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[’']/g,"").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
+const chars=Object.entries(GROUPS).flatMap(([category,items])=>items.map(name=>({name,category,id:slug(name)}))).filter(a=>!starters.has(a.id));
+if(chars.length!==114)console.warn("La liste devrait contenir 114 personnages",chars.length);
+const pictos={"Animaux":"🐾","Nourriture":"🍓","Fantastique":"🐲","Espace et technologie":"🪐","Nature et éléments":"🌿","Objets et ville":"🎮"};
+const byId=id=>document.getElementById(id);
+const H=112,C=105;
+const tracks=[byId('track0'),byId('track1'),byId('track2')];
+const machine=byId('machine'),button=byId('spin'),result=byId('result');
+let busy=false;
+function choose(){const bytes=new Uint32Array(1);if(window.crypto?.getRandomValues){crypto.getRandomValues(bytes);return chars[bytes[0]%chars.length]}return chars[Math.floor(Math.random()*chars.length)]}
+function imgFor(a,larger=false){const b=document.createElement('div');b.className='character';const img=document.createElement('img');img.alt='';img.loading='eager';img.src='assets/avatars/'+encodeURIComponent(a.id)+'.png';let step=0;const emoji=document.createElement('span');emoji.className='emoji';emoji.textContent=pictos[a.category]||'✨';img.onerror=()=>{if(step===0){step=1;img.src='assets/avatars/'+encodeURIComponent(a.id)+'.PNG'}else{img.remove();if(!b.contains(emoji))b.append(emoji)}};b.append(img);return b}
+function makeTile(a){const d=document.createElement('div');d.className='tile';d.append(imgFor(a));const t=document.createElement('div');t.className='tile-name';t.textContent=a.name;d.append(t);return d}
+function showIdle(){tracks.forEach((track,i)=>{track.replaceChildren(...Array.from({length:5},(_,j)=>makeTile(chars[(i*9+j*7+8)%chars.length])));track.style.transition='none';track.style.transform=`translateY(${49-112}px)`})}
+showIdle();
+const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+function spinReel(i,winner){return new Promise(resolve=>{const track=tracks[i];const num=43+i*8;const roll=Array.from({length:num},()=>chars[Math.floor(Math.random()*chars.length)]);roll.push(winner);track.replaceChildren(...roll.map(makeTile));const start=49-H*2,stop=49-H*(roll.length-1);track.style.transition='none';track.style.transform=`translateY(${start}px)`;const ms=reduced?120:2800+i*850;requestAnimationFrame(()=>requestAnimationFrame(()=>{track.style.transition=`transform ${ms}ms cubic-bezier(.10,.71,.10,1)`;track.style.transform=`translateY(${stop}px)`}));setTimeout(resolve,ms+125)})}
+button.addEventListener('click',async()=>{if(busy)return;busy=true;button.disabled=true;button.textContent='LES ROULEAUX TOURNENT…';result.hidden=true;machine.classList.remove('won');machine.classList.add('spinning');const winner=choose();await Promise.all(tracks.map((_,i)=>spinReel(i,winner)));machine.classList.remove('spinning');machine.classList.add('won');byId('winnerArt').replaceChildren(imgFor(winner,true));byId('winnerName').textContent=winner.name;byId('winnerCategory').textContent=winner.category;result.hidden=false;button.textContent='↻ REJOUER LA DÉMONSTRATION';button.disabled=false;busy=false});
+</script>
+</body>
+</html>
