@@ -550,311 +550,215 @@
         #111B25 76%,
         #070A0D 100%);
     }
-/* ===================================================
-   HIDEOUT - NEW YORK
-   BATIMENTS NOIRS ET FENETRES LUMINEUSES
-   =================================================== */
+/* =========================================================
+   HIDEOUT — SKYLINE NEW YORK DENSE
+   Ville noire, serrée, fenêtres organisées
+   ========================================================= */
 
-/* ================================================
-   1. POSITION GENERALE DE LA VILLE
-   ================================================ */
-
-.intro > .intro-city {
-  position: absolute;
-
-  left: 0;
-  right: 0;
-
-  top: 24%;
-  height: 37%;
-
-  z-index: 2;
-
-  pointer-events: none;
-
-  background: transparent;
-
-  overflow: visible;
+.intro-city{
+  position:absolute;
+  left:0;
+  right:0;
+  top:23%;
+  height:34%;
+  z-index:2;
+  pointer-events:none;
+  overflow:visible;
+  background:transparent;
 }
 
-/* ================================================
-   2. STRUCTURE DE TOUS LES BATIMENTS
-   ================================================ */
+/* base skyline */
+.intro-city .skyline{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  height:100%;
+}
 
-.intro > .intro-city .intro-building {
-  position: absolute;
-
-  bottom: 0;
-
-  display: block;
-
-  background: linear-gradient(
+/* tous les bâtiments */
+.intro-city .building{
+  position:absolute;
+  bottom:0;
+  background:linear-gradient(
     to bottom,
-    #08090B 0%,
-    #040506 35%,
-    #020303 70%,
+    #0b0b0d 0%,
+    #070709 38%,
+    #030304 72%,
     #010101 100%
   );
-
-  border-left: 1px solid #0C0E10;
-  border-right: 1px solid #020202;
-
+  border-left:1px solid rgba(255,255,255,.04);
+  border-right:1px solid rgba(0,0,0,.7);
   box-shadow:
-    inset 2px 0 3px rgba(255,255,255,0.025),
-    inset -3px 0 6px rgba(0,0,0,0.55);
-
-  overflow: hidden;
+    inset 1px 0 0 rgba(255,255,255,.03),
+    inset -2px 0 3px rgba(0,0,0,.55);
+  overflow:hidden;
 }
 
-/* ================================================
-   3. ZONE DES FENETRES
-   ================================================ */
-
-.intro > .intro-city .intro-building::after {
-  content: "";
-
-  position: absolute;
-
-  top: 12px;
-  bottom: 5px;
-
-  left: 0;
-  right: 0;
-
-  pointer-events: none;
-
-  background-repeat: repeat-y;
-  background-position: center top;
-
-  opacity: 1;
-
+/* fenêtres */
+.intro-city .building::after{
+  content:"";
+  position:absolute;
+  left:8%;
+  right:8%;
+  top:8px;
+  bottom:6px;
+  pointer-events:none;
+  opacity:.95;
+  background-repeat:repeat;
+  background-position:top left;
   filter:
-    drop-shadow(
-      0 0 2px rgba(255,231,95,0.60)
-    )
-    drop-shadow(
-      0 0 4px rgba(255,194,42,0.25)
-    );
+    drop-shadow(0 0 2px rgba(255,232,120,.35))
+    drop-shadow(0 0 4px rgba(255,176,58,.15));
 }
 
-/* ================================================
-   4. PETITS BATIMENTS
-   UNE COLONNE DE FENETRES
-   ================================================ */
-
-.intro > .intro-city .windows-1::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='15' height='114' viewBox='0 0 15 114'%3E%3Crect x='4' y='4' width='7' height='9' fill='%23FFE94A'/%3E%3Crect x='4' y='23' width='7' height='9' fill='%23FFF8DE'/%3E%3Crect x='4' y='42' width='7' height='9' fill='%23FFB341'/%3E%3Crect x='4' y='61' width='7' height='9' fill='%23FFE066' opacity='.65'/%3E%3Crect x='4' y='99' width='7' height='9' fill='%23FFF2A6'/%3E%3C/svg%3E");
-
-  background-size: 15px 114px;
+/* variantes de fenêtres */
+.intro-city .w3::after{
+  background-image:
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='30' height='14' viewBox='0 0 30 14'>\
+<rect x='1'  y='2' width='4' height='4' rx='0.8' fill='%23fff2b4'/>\
+<rect x='13' y='2' width='4' height='4' rx='0.8' fill='%23ffd86a'/>\
+<rect x='25' y='2' width='4' height='4' rx='0.8' fill='%23fff7da'/>\
+</svg>");
+  background-size:30px 14px;
 }
 
-/* ================================================
-   5. BATIMENTS MOYENS
-   DEUX COLONNES DE FENETRES
-   ================================================ */
-
-.intro > .intro-city .windows-2::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='30' height='114' viewBox='0 0 30 114'%3E%3Crect x='4' y='4' width='7' height='9' fill='%23FFF9E8'/%3E%3Crect x='19' y='4' width='7' height='9' fill='%23FFD84D'/%3E%3Crect x='4' y='23' width='7' height='9' fill='%23FFB341'/%3E%3Crect x='19' y='23' width='7' height='9' fill='%23FFF2A6'/%3E%3Crect x='4' y='42' width='7' height='9' fill='%23FFE600'/%3E%3Crect x='19' y='42' width='7' height='9' fill='%23F5BC4A' opacity='.55'/%3E%3Crect x='4' y='61' width='7' height='9' fill='%23FFF9E8'/%3E%3Crect x='19' y='61' width='7' height='9' fill='%23FFCA53'/%3E%3Crect x='19' y='80' width='7' height='9' fill='%23FFE94A'/%3E%3Crect x='4' y='99' width='7' height='9' fill='%23FFD066' opacity='.7'/%3E%3Crect x='19' y='99' width='7' height='9' fill='%23FFF5BF'/%3E%3C/svg%3E");
-
-  background-size: 30px 114px;
+.intro-city .w4::after{
+  background-image:
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='40' height='14' viewBox='0 0 40 14'>\
+<rect x='1'  y='2' width='4' height='4' rx='0.8' fill='%23fff5c8'/>\
+<rect x='12' y='2' width='4' height='4' rx='0.8' fill='%23ffd463'/>\
+<rect x='23' y='2' width='4' height='4' rx='0.8' fill='%23fff9e8'/>\
+<rect x='34' y='2' width='4' height='4' rx='0.8' fill='%23ffbf47'/>\
+</svg>");
+  background-size:40px 14px;
 }
 
-/* ================================================
-   6. GRANDS BATIMENTS
-   TROIS COLONNES DE FENETRES
-   ================================================ */
-
-.intro > .intro-city .windows-3::after {
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='45' height='114' viewBox='0 0 45 114'%3E%3Crect x='4' y='4' width='7' height='9' fill='%23FFE94A'/%3E%3Crect x='19' y='4' width='7' height='9' fill='%23FFF9E8'/%3E%3Crect x='34' y='4' width='7' height='9' fill='%23FFB341'/%3E%3Crect x='4' y='23' width='7' height='9' fill='%23FFF2A6'/%3E%3Crect x='19' y='23' width='7' height='9' fill='%23FFD84D' opacity='.6'/%3E%3Crect x='34' y='23' width='7' height='9' fill='%23FFF9E8'/%3E%3Crect x='4' y='42' width='7' height='9' fill='%23FFB341'/%3E%3Crect x='19' y='42' width='7' height='9' fill='%23FFE600'/%3E%3Crect x='34' y='42' width='7' height='9' fill='%23FFD066'/%3E%3Crect x='4' y='61' width='7' height='9' fill='%23FFF9E8'/%3E%3Crect x='19' y='61' width='7' height='9' fill='%23FFCA53'/%3E%3Crect x='34' y='61' width='7' height='9' fill='%23FFF2A6' opacity='.65'/%3E%3Crect x='4' y='80' width='7' height='9' fill='%23FFE94A'/%3E%3Crect x='34' y='80' width='7' height='9' fill='%23FFB341'/%3E%3Crect x='4' y='99' width='7' height='9' fill='%23FFD066' opacity='.55'/%3E%3Crect x='19' y='99' width='7' height='9' fill='%23FFF9E8'/%3E%3Crect x='34' y='99' width='7' height='9' fill='%23FFE600'/%3E%3C/svg%3E");
-
-  background-size: 45px 114px;
+.intro-city .w5::after{
+  background-image:
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='52' height='14' viewBox='0 0 52 14'>\
+<rect x='1'  y='2' width='4' height='4' rx='0.8' fill='%23fff0aa'/>\
+<rect x='13' y='2' width='4' height='4' rx='0.8' fill='%23fff8dd'/>\
+<rect x='25' y='2' width='4' height='4' rx='0.8' fill='%23ffc957'/>\
+<rect x='37' y='2' width='4' height='4' rx='0.8' fill='%23fff7cf'/>\
+<rect x='47' y='2' width='4' height='4' rx='0.8' fill='%23ffb93b'/>\
+</svg>");
+  background-size:52px 14px;
 }
 
-/* ================================================
-   7. BATIMENT NUMERO 1
-   PETIT BATIMENT SUR LA GAUCHE
-   ================================================ */
-
-.intro > .intro-city .b1 {
-  left: 4%;
-  width: 8%;
-  height: 29%;
+.intro-city .w6::after{
+  background-image:
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='62' height='14' viewBox='0 0 62 14'>\
+<rect x='1'  y='2' width='4' height='4' rx='0.8' fill='%23fff7d4'/>\
+<rect x='12' y='2' width='4' height='4' rx='0.8' fill='%23ffd768'/>\
+<rect x='23' y='2' width='4' height='4' rx='0.8' fill='%23fff2ae'/>\
+<rect x='34' y='2' width='4' height='4' rx='0.8' fill='%23fffaf1'/>\
+<rect x='45' y='2' width='4' height='4' rx='0.8' fill='%23ffbf45'/>\
+<rect x='56' y='2' width='4' height='4' rx='0.8' fill='%23ffe58f'/>\
+</svg>");
+  background-size:62px 14px;
 }
 
-/* ================================================
-   8. BATIMENT NUMERO 2
-   BATIMENT MOYEN
-   ================================================ */
-
-.intro > .intro-city .b2 {
-  left: 13%;
-  width: 13%;
-  height: 49%;
+.intro-city .w8::after{
+  background-image:
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='84' height='14' viewBox='0 0 84 14'>\
+<rect x='1'  y='2' width='4' height='4' rx='0.8' fill='%23fff5c9'/>\
+<rect x='12' y='2' width='4' height='4' rx='0.8' fill='%23ffd66d'/>\
+<rect x='23' y='2' width='4' height='4' rx='0.8' fill='%23fff9ea'/>\
+<rect x='34' y='2' width='4' height='4' rx='0.8' fill='%23ffc14a'/>\
+<rect x='45' y='2' width='4' height='4' rx='0.8' fill='%23fff0a6'/>\
+<rect x='56' y='2' width='4' height='4' rx='0.8' fill='%23ffe07c'/>\
+<rect x='67' y='2' width='4' height='4' rx='0.8' fill='%23fffdf5'/>\
+<rect x='78' y='2' width='4' height='4' rx='0.8' fill='%23ffb83b'/>\
+</svg>");
+  background-size:84px 14px;
 }
 
-/* ================================================
-   9. BATIMENT NUMERO 3
-   PETIT BATIMENT
-   ================================================ */
-
-.intro > .intro-city .b3 {
-  left: 27%;
-  width: 9%;
-  height: 32%;
+.intro-city .w10::after{
+  background-image:
+    url("data:image/svg+xml;utf8,\
+<svg xmlns='http://www.w3.org/2000/svg' width='106' height='14' viewBox='0 0 106 14'>\
+<rect x='1'  y='2' width='4' height='4' rx='0.8' fill='%23fff7d1'/>\
+<rect x='12' y='2' width='4' height='4' rx='0.8' fill='%23ffd76e'/>\
+<rect x='23' y='2' width='4' height='4' rx='0.8' fill='%23fff1a9'/>\
+<rect x='34' y='2' width='4' height='4' rx='0.8' fill='%23fffdf8'/>\
+<rect x='45' y='2' width='4' height='4' rx='0.8' fill='%23ffbd42'/>\
+<rect x='56' y='2' width='4' height='4' rx='0.8' fill='%23fff3b9'/>\
+<rect x='67' y='2' width='4' height='4' rx='0.8' fill='%23ffd061'/>\
+<rect x='78' y='2' width='4' height='4' rx='0.8' fill='%23fff9e5'/>\
+<rect x='89' y='2' width='4' height='4' rx='0.8' fill='%23ffc04e'/>\
+<rect x='100' y='2' width='4' height='4' rx='0.8' fill='%23fff0aa'/>\
+</svg>");
+  background-size:106px 14px;
 }
 
-/* ================================================
-   10. BATIMENT NUMERO 4
-   GRAND BATIMENT CENTRAL
-   ================================================ */
-
-.intro > .intro-city .b4 {
-  left: 37%;
-  width: 18%;
-  height: 87%;
-
-  background: linear-gradient(
-    to bottom,
-    #090A0D 0%,
-    #030405 35%,
-    #010203 100%
-  );
-}
-
-/* ================================================
-   11. BATIMENT NUMERO 5
-   BATIMENT MOYEN
-   ================================================ */
-
-.intro > .intro-city .b5 {
-  left: 56%;
-  width: 11%;
-  height: 42%;
-}
-
-/* ================================================
-   12. BATIMENT NUMERO 6
-   GRAND BATIMENT
-   ================================================ */
-
-.intro > .intro-city .b6 {
-  left: 68%;
-  width: 14%;
-  height: 62%;
-}
-
-/* ================================================
-   13. BATIMENT NUMERO 7
-   BATIMENT MOYEN
-   ================================================ */
-
-.intro > .intro-city .b7 {
-  left: 83%;
-  width: 9%;
-  height: 35%;
-}
-
-/* ================================================
-   14. BATIMENT NUMERO 8
-   PETIT BATIMENT
-   ================================================ */
-
-.intro > .intro-city .b8 {
-  left: 93%;
-  width: 7%;
-  height: 27%;
-}
-
-/* ================================================
-   15. VARIATIONS DE LUMINOSITE
-   ================================================ */
-
-/* Batiment 1 : lumieres assez discretes */
-
-.intro > .intro-city .b1::after {
-  opacity: 0.68;
-}
-
-/* Batiment 2 : lumieres normales */
-
-.intro > .intro-city .b2::after {
-  opacity: 0.92;
-}
-
-/* Batiment 3 : lumieres plus faibles */
-
-.intro > .intro-city .b3::after {
-  opacity: 0.62;
-}
-
-/* Grand batiment central : lumieres fortes */
-
-.intro > .intro-city .b4::after {
-  opacity: 1;
-
+/* variations de luminosité */
+.intro-city .dim::after{ opacity:.55; }
+.intro-city .soft::after{ opacity:.72; }
+.intro-city .mid::after{ opacity:.88; }
+.intro-city .strong::after{
+  opacity:1;
   filter:
-    drop-shadow(
-      0 0 3px rgba(255,236,122,0.85)
-    )
-    drop-shadow(
-      0 0 6px rgba(255,204,50,0.45)
-    );
+    drop-shadow(0 0 3px rgba(255,236,150,.55))
+    drop-shadow(0 0 6px rgba(255,170,40,.22));
 }
 
-/* Batiment 5 : lumieres plus chaudes */
+/* skyline dense : bâtiments serrés */
+.intro-city .b1  { left:0%;   width:5%;  height:20%; }
+.intro-city .b2  { left:4.5%; width:4%;  height:15%; }
+.intro-city .b3  { left:8%;   width:5%;  height:24%; }
+.intro-city .b4  { left:12%;  width:5%;  height:40%; }
+.intro-city .b5  { left:16.5%;width:4%;  height:18%; }
+.intro-city .b6  { left:20%;  width:6%;  height:30%; }
+.intro-city .b7  { left:25%;  width:5%;  height:22%; }
+.intro-city .b8  { left:29%;  width:7%;  height:48%; }
+.intro-city .b9  { left:35.5%;width:5%;  height:27%; }
+.intro-city .b10 { left:40%;  width:8%;  height:74%; }  /* central grand */
+.intro-city .b11 { left:47.5%;width:3%;  height:92%; }  /* flèche */
+.intro-city .b12 { left:50%;  width:7%;  height:38%; }
+.intro-city .b13 { left:56%;  width:5%;  height:34%; }
+.intro-city .b14 { left:60%;  width:6%;  height:46%; }
+.intro-city .b15 { left:65%;  width:5%;  height:25%; }
+.intro-city .b16 { left:69%;  width:8%;  height:36%; }
+.intro-city .b17 { left:76.5%;width:4%;  height:18%; }
+.intro-city .b18 { left:80%;  width:5%;  height:28%; }
+.intro-city .b19 { left:84%;  width:6%;  height:52%; }
+.intro-city .b20 { left:89.5%;width:4%;  height:24%; }
+.intro-city .b21 { left:93%;  width:7%;  height:32%; }
 
-.intro > .intro-city .b5::after {
-  opacity: 0.82;
+/* quelques toits / antennes */
+.intro-city .spire::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:100%;
+  width:2px;
+  height:20px;
+  background:#111;
+  box-shadow:0 0 0 1px rgba(255,255,255,.02);
 }
 
-/* Batiment 6 : tres lumineux */
-
-.intro > .intro-city .b6::after {
-  opacity: 1;
-
-  filter:
-    drop-shadow(
-      0 0 3px rgba(255,240,160,0.75)
-    )
-    drop-shadow(
-      0 0 6px rgba(255,179,65,0.30)
-    );
+.intro-city .empire::before{
+  content:"";
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  bottom:100%;
+  width:18%;
+  height:10%;
+  background:#0a0a0c;
 }
 
-/* Batiment 7 : luminosite moyenne */
-
-.intro > .intro-city .b7::after {
-  opacity: 0.78;
+/* ville plus sombre derrière la statue si besoin */
+.intro-city{
+  filter:brightness(.95);
 }
-
-/* Batiment 8 : lumiere discrete */
-
-.intro > .intro-city .b8::after {
-  opacity: 0.72;
-}
-
-/* ================================================
-   16. PETITE STRUCTURE SUR LE TOIT CENTRAL
-   ================================================ */
-
-.intro > .intro-city .b4::before {
-  content: "";
-
-  position: absolute;
-
-  left: 37%;
-  top: 0;
-
-  width: 26%;
-  height: 10%;
-
-  background: #090A0B;
-  z-index: 1;
-}
-
-/* ================================================
-   FIN DES BATIMENTS HIDEOUT
-   ================================================ */
     .intro-center {
   position: absolute;
   left: 50%;
