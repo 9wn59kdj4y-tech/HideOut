@@ -552,26 +552,30 @@
     }
 
     .intro-city {
-      position: absolute;
-      inset: 24% 0 auto;
-      height: 37%;
-      background: linear-gradient(
-      to top,
-      #010203 0%,
-      #030405 55%,
-      #06080A 100%
-   );
-      clip-path: polygon(
-        0% 100%, 0% 52%, 6% 52%, 6% 37%,
-        12% 37%, 12% 60%, 18% 60%, 18% 24%,
-        24% 24%, 24% 51%, 30% 51%, 30% 42%,
-        36% 42%, 36% 63%, 43% 63%, 43% 19%,
-        47% 19%, 47% 10%, 49% 10%, 49% 0%,
-        50% 0%, 50% 10%, 52% 10%, 52% 19%,
-        56% 19%, 56% 65%, 62% 65%, 62% 35%,
-        69% 35%, 69% 56%, 75% 56%, 75% 28%,
-        82% 28%, 82% 51%, 90% 51%, 90% 41%,
-        96% 41%, 96% 59%, 100% 59%, 100% 100%
+  position: absolute;
+  inset: 24% 0 auto;
+  height: 37%;
+  background: linear-gradient(
+    to top,
+    #010101 0%,
+    #030303 55%,
+    #060606 100%
+  );
+  clip-path: polygon(
+    0% 100%, 0% 52%, 6% 52%, 6% 37%,
+    12% 37%, 12% 60%, 18% 60%, 18% 24%,
+    24% 24%, 24% 51%, 30% 51%, 30% 42%,
+    36% 42%, 36% 63%, 43% 63%, 43% 19%,
+    47% 19%, 47% 10%, 49% 10%, 49% 0%,
+    50% 0%, 50% 10%, 52% 10%, 52% 19%,
+    56% 19%, 56% 65%, 62% 65%, 62% 35%,
+    69% 35%, 69% 56%, 75% 56%, 75% 28%,
+    82% 28%, 82% 51%, 90% 51%, 90% 41%,
+    96% 41%, 96% 59%, 100% 59%, 100% 100%
+  );
+  z-index: 2;
+  overflow: hidden;
+}
       );
     }
 
@@ -579,19 +583,23 @@
   position: absolute;
   inset: 0;
   content: "";
-  opacity: 1;
-
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='36' height='34'%3E%3Crect x='6' y='6' width='6' height='8' rx='1' fill='%23FFF06A'/%3E%3Crect x='23' y='6' width='6' height='8' rx='1' fill='%23FFD93D'/%3E%3Crect x='6' y='21' width='6' height='8' rx='1' fill='%23FFE95C'/%3E%3Crect x='23' y='21' width='6' height='8' rx='1' fill='%23FFF7A8'/%3E%3C/svg%3E");
-
-  background-size: 36px 34px;
+  opacity: .65;
+  background-image:
+    linear-gradient(rgba(255, 223, 92, .95), rgba(255, 223, 92, .95)),
+    linear-gradient(rgba(255, 211, 74, .85), rgba(255, 211, 74, .85)),
+    linear-gradient(rgba(255, 235, 140, .80), rgba(255, 235, 140, .80));
+  background-size:
+    4px 4px,
+    3px 3px,
+    5px 5px;
+  background-position:
+    6px 7px,
+    18px 14px,
+    30px 9px;
   background-repeat: repeat;
-  pointer-events: none;
-
-  filter:
-  drop-shadow(0 0 3px #fff799)
-  drop-shadow(0 0 6px #ffe44d)
-  drop-shadow(0 0 12px #ffd000)
-  drop-shadow(0 0 18px #ffea00);
+  filter: blur(.15px);
+  mix-blend-mode: screen;
+}
 }
     }
 
