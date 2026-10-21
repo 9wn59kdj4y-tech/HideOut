@@ -4424,8 +4424,20 @@ setInterval(async () => {
       );
     }
 
-    const { error } =
-      await state.supabase.auth.signOut();
+    const { error: releaseError } =
+  await state.supabase.rpc("ho_release_session");
+
+if (releaseError) {
+  console.warn("Libération de session :", releaseError);
+  throw new Error(
+    "Impossible de libérer le compte. Réessaie."
+  );
+}
+
+const { error } =
+  await state.supabase.auth.signOut({
+    scope: "local"
+  });
 
     if (error) throw error;
 
