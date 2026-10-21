@@ -225,12 +225,12 @@
       height: .92em;
       margin: 0 .10em;
       transform: rotate(23deg);
-      background: var(--orange);
+      background: var(--blanc);
       border-radius: 2px;
     }
 
     .logo.light .logo-hide {
-      color: #EDEDED;
+      color: #303030;
     }
 
     .logo.compact {
@@ -1182,6 +1182,26 @@
   100% {
     opacity: 1;
   }
+}
+  /* HIDEOUT - LOGOS AVEC OMBRES */
+
+/* HIDE : noir anthracite */
+#app .logo .logo-hide {
+  color: #303030 !important;
+  -webkit-text-stroke: 0.7px #888888;
+  text-shadow: 0 3px 4px rgba(0,0,0,0.85);
+}
+
+/* OUT : orange */
+#app .logo .logo-out {
+  color: #ff9f1c !important;
+  text-shadow: 0 3px 4px rgba(0,0,0,0.8);
+}
+
+/* Barre blanche avec ombre */
+#app .logo .logo-split {
+  background: #ffffff !important;
+  box-shadow: 0 3px 5px rgba(0,0,0,0.75);
 }
   </style>
 </head>
