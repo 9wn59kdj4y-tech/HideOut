@@ -3638,7 +3638,7 @@
         id: slug(name),
         name,
         category,
-        locked: LOCKED_AVATARS.has(slug(name))
+        locked: !STARTER_AVATARS.has(slug(name))
       }))
     );
 
