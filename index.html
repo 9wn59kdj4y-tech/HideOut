@@ -1004,6 +1004,38 @@
   mix-blend-mode: normal;
 }
 
+/* ============================================
+   HIDEOUT - NOUVELLE INTRODUCTION OFFICIELLE
+   ============================================ */
+
+#intro {
+  background-color: #030508 !important;
+  background-image: url("./intro-final.png") !important;
+  background-position: center center !important;
+  background-size: contain !important;
+  background-repeat: no-repeat !important;
+}
+
+/* Masquer les anciens éléments du décor */
+
+#intro::before,
+#intro .intro-city,
+#intro .intro-statue,
+#intro .intro-water,
+#intro .intro-grass,
+#intro .intro-stars,
+#intro .intro-center,
+#intro .intro-credit {
+  display: none !important;
+}
+
+/* Animation de sortie de la nouvelle image */
+
+#intro.animate {
+  opacity: 0;
+  transition: opacity 0.8s ease;
+}
+
   </style>
 </head>
 
