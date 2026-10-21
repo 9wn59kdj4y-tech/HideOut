@@ -5562,7 +5562,14 @@ wheelsArea.addEventListener("keydown", event => {
     });
 
     await refreshRoom();
+    if (state.roomChannel) {
+  await state.roomChannel.send({
+    type: "broadcast",
+    event: "changed",
+    payload: {}
   });
+   }
+  }); 
 
   on("leaveLobby", "click", async () => {
     await rpc("ho_leave", {
