@@ -3920,8 +3920,24 @@
       );
 
     if (error) {
-      throw new Error(error.message);
-    }
+  if (
+    functionName === "ho_profile" &&
+    (
+      error.code === "23505" ||
+      /duplicate key|unique constraint|already exists/i.test(
+        error.message || ""
+      )
+    )
+  ) {
+    throw new Error(
+      "Un utilisateur utilise déjà ce pseudo. " +
+      "Choisis-en un autre ou ajoute un caractère " +
+      "pour le différencier."
+    );
+  }
+
+  throw new Error(error.message);
+}
 
     return data;
   }
