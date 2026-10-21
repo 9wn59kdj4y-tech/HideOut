@@ -6109,7 +6109,52 @@ wheelsArea.addEventListener("keydown", event => {
     ) {
       return;
     }
+const pendingCode = sessionStorage.getItem(
+  "hideout_pending_join"
+);
 
+if (pendingCode) {
+  try {
+    const joinedRoomId = await rpc(
+      "ho_join_room",
+      { p_code: pendingCode }
+    );
+
+    state.roomId = joinedRoomId;
+
+    sessionStorage.removeItem(
+      "hideout_pending_join"
+    );
+
+    const url = new URL(location.href);
+    url.searchParams.delete("join");
+    history.replaceState(
+      null,
+      "",
+      url.pathname + url.search + url.hash
+    );
+
+    rememberRoom();
+    state.lastHeartbeat = 0;
+
+    await refreshRoom();
+    startRefresh();
+
+    return;
+  } catch (error) {
+    console.warn("Invitation HIDEOUT :", error);
+
+    notify(
+      "Impossible de rejoindre ce salon : " +
+      (error.message || "invitation invalide."),
+      "error"
+    );
+
+    sessionStorage.removeItem(
+      "hideout_pending_join"
+    );
+  }
+}
     const savedRoom =
       localStorage.getItem(
         "hideout_room_" +
