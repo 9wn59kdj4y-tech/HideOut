@@ -5004,11 +5004,13 @@
 
   $$("[data-preset]").forEach(button => {
     button.addEventListener("click", () => {
-      const preset =
-        PRESETS[button.dataset.preset];
+      state.activePreset = button.dataset.preset;
+       const preset = PRESETS[state.activePreset];
 
-      if (!preset) return;
-
+    if (!preset) {
+    renderWheels();
+    return;
+   }
       Object.assign(
         state.editedSettings,
         preset
