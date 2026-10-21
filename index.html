@@ -4240,7 +4240,47 @@ if (sessionError || sessionAllowed !== true) {
       }
     );
   }
+/* HIDEOUT — Maintien de la session unique */
 
+let hoSessionHeartbeatRunning = false;
+
+setInterval(async () => {
+  if (
+    !state.user ||
+    !state.supabase ||
+    document.visibilityState !== "visible" ||
+    hoSessionHeartbeatRunning
+  ) {
+    return;
+  }
+
+  hoSessionHeartbeatRunning = true;
+
+  try {
+    const { data, error } =
+      await state.supabase.rpc("ho_claim_session");
+
+    if (error) {
+      console.warn("Session HIDEOUT :", error);
+      return;
+    }
+
+    if (data !== true) {
+      await state.supabase.auth.signOut({
+        scope: "local"
+      });
+
+      notify(
+        "⚠️ Ce compte est déjà actif sur un autre appareil.",
+        "error"
+      );
+    }
+  } catch (error) {
+    console.warn("Vérification de session :", error);
+  } finally {
+    hoSessionHeartbeatRunning = false;
+  }
+}, 30000);
   async function rpc(functionName, argumentsObject = {}) {
     if (!state.supabase) {
       throw new Error(
