@@ -6154,6 +6154,12 @@ if (
   // ==========================================================
 
   async function refreshRoom() {
+   if (
+  document.hidden &&
+  state.room?.phase === "lobby"
+) {
+  return;
+}
     if (
       !state.roomId ||
       !state.user ||
