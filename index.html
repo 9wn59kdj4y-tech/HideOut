@@ -6407,14 +6407,18 @@ $$("[data-room-mode]").forEach(button => {
           },
 
           error => {
-            reject(
-              new Error(
-                error.code === 1
-                  ? "Autorise la localisation dans ton navigateur."
-                  : "Position GPS indisponible."
-              )
-            );
-          },
+  const raisons = {
+    1: "Accès GPS refusé par Safari ou iOS",
+    2: "Position GPS indisponible",
+    3: "Délai de localisation dépassé"
+  };
+
+  reject(new Error(
+    "GPS " + error.code + " : " +
+    (raisons[error.code] || "Erreur inconnue") +
+    (error.message ? " — " + error.message : "")
+  ));
+},
 
           {
             enableHighAccuracy: true,
