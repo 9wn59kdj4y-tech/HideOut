@@ -7950,6 +7950,9 @@ if (sessionStorage.getItem("hideout_intro_seen") === "1") {
         "click",
         handle(async () => {  
          sessionStorage.setItem("hideout_intro_seen", "1");
+         requestPosition().catch(error => {
+         console.warn("GPS HIDEOUT :", error.message);
+       });
           intro.classList.add("animate");
 
           await new Promise(
