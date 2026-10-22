@@ -5842,59 +5842,163 @@ $$("[data-room-mode]").forEach(button => {
   // 14. GOOGLE MAPS
   // ==========================================================
 
+  // HIDEOUT — Leaflet + OpenStreetMap
   function loadGoogleMaps() {
-    if (window.google?.maps) {
-      return Promise.resolve();
-    }
+    if (window.google?.maps?.Map) return Promise.resolve();
+    if (state.mapPromise) return state.mapPromise;
 
-    if (state.mapPromise) {
-      return state.mapPromise;
-    }
+    state.mapPromise = new Promise((resolve, reject) => {
+      const css = document.createElement("link");
+      css.rel = "stylesheet";
+      css.href = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.css";
+      document.head.appendChild(css);
 
-    if (
-      CONFIG.GOOGLE_MAPS_KEY.startsWith("COLLE_")
-    ) {
-      throw new Error(
-        "Configure la clé Google Maps."
-      );
-    }
+      const extra = document.createElement("style");
+      extra.textContent = `
+        #map { z-index: 0; }
+        #map .leaflet-control-attribution {
+          margin-bottom: calc(85px + env(safe-area-inset-bottom)) !important;
+        }
+      `;
+      document.head.appendChild(extra);
 
-    state.mapPromise =
-      new Promise((resolve, reject) => {
-        const script =
-          document.createElement("script");
+      const script = document.createElement("script");
+      script.src = "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js";
 
-        script.src =
-          "https://maps.googleapis.com/maps/api/js" +
-          "?key=" +
-          encodeURIComponent(
-            CONFIG.GOOGLE_MAPS_KEY
-          ) +
-          "&v=weekly";
+      script.onload = () => {
+        const L = window.L;
+        if (!L) {
+          reject(new Error("Leaflet indisponible."));
+          return;
+        }
 
-        script.async = true;
+        const wrap = layer => {
+          layer.setMap = map =>
+            map ? layer.addTo(map) : layer.remove();
+          return layer;
+        };
 
-        script.onload = () => {
-          if (window.google?.maps) {
-            resolve();
-          } else {
-            reject(
-              new Error(
-                "Google Maps ne s'est pas chargé."
-              )
+        // Adaptation de l'ancien code Google Maps
+        window.google = window.google || {};
+
+        window.google.maps = {
+          Map: function(element, options) {
+            if (element._hideoutMap) {
+              element._hideoutMap.remove();
+            }
+
+            const map = L.map(element, {
+              zoomControl: false
+            }).setView(
+              [options.center.lat, options.center.lng],
+              options.zoom
             );
+
+            L.tileLayer(
+              "https://tile.openstreetmap.org/{z}/{x}/{y}.png",
+              {
+                maxZoom: 19,
+                attribution:
+                  '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              }
+            ).addTo(map);
+
+            element._hideoutMap = map;
+            setTimeout(() => map.invalidateSize(), 200);
+            return map;
+          },
+
+          Marker: function(options) {
+            const s = options.icon.scaledSize;
+            const a = options.icon.anchor;
+
+            const marker = wrap(
+              L.marker(
+                [options.position.lat, options.position.lng],
+                {
+                  title: options.title,
+                  icon: L.icon({
+                    iconUrl: options.icon.url,
+                    iconSize: [s.width, s.height],
+                    iconAnchor: [a.x, a.y]
+                  })
+                }
+              ).addTo(options.map)
+            );
+
+            marker.setPosition = p =>
+              marker.setLatLng([p.lat, p.lng]);
+
+            return marker;
+          },
+
+          Circle: function(options) {
+            return wrap(
+              L.circle(
+                [options.center.lat, options.center.lng],
+                {
+                  radius: options.radius,
+                  color: options.strokeColor,
+                  opacity: options.strokeOpacity,
+                  weight: options.strokeWeight,
+                  fillColor:
+                    options.fillColor || options.strokeColor,
+                  fillOpacity: options.fillOpacity || 0,
+                  interactive: false
+                }
+              ).addTo(options.map)
+            );
+          },
+
+          Size: function(width, height) {
+            this.width = width;
+            this.height = height;
+          },
+
+          Point: function(x, y) {
+            this.x = x;
+            this.y = y;
+          },
+
+          Geocoder: function() {
+            this.geocode = async ({ address }) => {
+              const response = await fetch(
+                "https://nominatim.openstreetmap.org/search?format=json&limit=1&q=" +
+                encodeURIComponent(address)
+              );
+
+              if (!response.ok) {
+                throw new Error("Recherche de lieu indisponible.");
+              }
+
+              const found = await response.json();
+
+              return {
+                results: found.map(place => ({
+                  formatted_address: place.display_name,
+                  geometry: {
+                    location: {
+                      lat: () => Number(place.lat),
+                      lng: () => Number(place.lon)
+                    }
+                  }
+                }))
+              };
+            };
           }
         };
 
-        script.onerror = () =>
-          reject(
-            new Error(
-              "Erreur de connexion à Google Maps."
-            )
-          );
+        resolve();
+      };
 
-        document.head.appendChild(script);
-      });
+      script.onerror = () =>
+        reject(new Error("Impossible de charger Leaflet."));
+
+      document.head.appendChild(script);
+    }).catch(error => {
+      state.mapPromise = null;
+      throw error;
+    });
 
     return state.mapPromise;
   }
