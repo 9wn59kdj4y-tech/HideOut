@@ -6487,17 +6487,84 @@ if (pendingCode) {
     }
   );
 
-  document.addEventListener(
-    "visibilitychange",
-    () => {
-      if (
-        !document.hidden &&
-        state.roomId
-      ) {
-        refreshRoom();
-      }
+  async function checkLobbyReturn() {
+  if (document.hidden) return;
+
+  const key = "hideout_hidden_since";
+  const since = Number(sessionStorage.getItem(key));
+
+  if (!since) {
+    if (state.roomId) refreshRoom();
+    return;
+  }
+
+  sessionStorage.removeItem(key);
+
+  if (
+    state.roomId &&
+    state.room?.phase === "lobby" &&
+    Date.now() - since >= 5 * 60 * 1000
+  ) {
+    stopRefresh();
+
+    try {
+      await rpc("ho_leave", {
+        p_room: state.roomId
+      });
+    } catch (error) {
+      console.warn("Sortie automatique :", error);
     }
-  );
+
+    forgetRoom();
+    state.roomId = null;
+    state.room = null;
+
+    sessionStorage.removeItem(
+      "hideout_intro_seen"
+    );
+
+    window.location.reload();
+    return;
+  }
+
+  if (state.roomId) refreshRoom();
+}
+
+function markLobbyHidden() {
+  if (
+    state.roomId &&
+    state.room?.phase === "lobby" &&
+    !sessionStorage.getItem("hideout_hidden_since")
+  ) {
+    sessionStorage.setItem(
+      "hideout_hidden_since",
+      String(Date.now())
+    );
+  }
+}
+
+document.addEventListener(
+  "visibilitychange",
+  () => {
+    if (document.hidden) {
+      markLobbyHidden();
+    } else {
+      checkLobbyReturn();
+    }
+  }
+);
+
+window.addEventListener(
+  "pagehide",
+  markLobbyHidden
+);
+
+window.addEventListener(
+  "pageshow",
+  () => {
+    checkLobbyReturn();
+  }
+);
 
   // ==========================================================
   // 19. ROULETTE DES RÔLES
