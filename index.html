@@ -6088,11 +6088,23 @@ $$("[data-room-mode]").forEach(button => {
     const place = {
       lat: Number(coords[1]),
       lng: Number(coords[0]),
-      name: [
-        p.name || p.street || p.housenumber,
-        p.city || p.locality,
-        p.state
-      ].filter(Boolean).join(" · ")
+      name: (() => {
+  const nom =
+    p.name ||
+    p.street ||
+    p.housenumber ||
+    "Lieu";
+
+  const generique =
+    /^(centre[- ]ville|centre|gare|mairie|parc|stade|lycée|collège|école|hôpital|place)$/i
+      .test(nom.trim());
+
+  const ville = p.city || p.locality;
+
+  return generique && ville
+    ? nom + " · " + ville
+    : nom;
+})()
     };
 
     if (
