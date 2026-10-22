@@ -4535,7 +4535,35 @@ if (sessionStorage.getItem("hideout_pending_join")) {
 showScreen("gpsPermissionScreen");
   
   });
+// HIDEOUT — Autorisation de localisation
 
+on("allowGPS", "click", async () => {
+  const status = $("gpsPermissionStatus");
+
+  status.textContent =
+    "Vérification de la localisation...";
+
+  try {
+    await requestPosition();
+
+    status.textContent =
+      "Localisation autorisée !";
+
+    showScreen("homeScreen");
+
+  } catch (error) {
+    status.textContent =
+      error.message ||
+      "Impossible d'obtenir la position GPS.";
+
+    notify(status.textContent, "error");
+  }
+});
+
+on("skipGPS", "click", () => {
+  showScreen("homeScreen");
+});
+  
   function xpRequiredForLevel(level) {
     return (
       75 * (level - 1) +
