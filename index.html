@@ -4328,23 +4328,41 @@
   // ==========================================================
   // 4. NOTIFICATIONS
   // ==========================================================
+function notify(message, type = "info") {
+  const element = $("toast");
 
-    function notify(message, type = "info") {
-    const element = $("toast");
+  if (!element) return;
 
-    if (!element) return;
-    element.classList.toggle("error", type === "error");
-    element.textContent = message;
-    element.hidden = false;
-    element.classList.add("visible");
+  clearTimeout(state.noticeTimer);
 
-    clearTimeout(state.noticeTimer);
+  element.classList.toggle(
+    "error",
+    type === "error"
+  );
 
-    state.noticeTimer = setTimeout(() => {
-      element.classList.remove("visible");
-      element.hidden = true;
-    }, 4000);
-  }
+  element.textContent = message;
+  element.hidden = false;
+  element.classList.add("visible");
+
+  // Durée choisie dans SETTINGS
+  const configured = Number(
+    state.preferences.notificationDuration ?? 4
+  );
+
+  const seconds = Number.isFinite(configured)
+    ? Math.max(0, Math.min(60, configured))
+    : 4;
+
+  // Les erreurs restent visibles au moins 4 secondes
+  const duration = type === "error"
+    ? Math.max(4, seconds)
+    : seconds;
+
+  state.noticeTimer = setTimeout(() => {
+    element.classList.remove("visible");
+    element.hidden = true;
+  }, duration * 1000);
+}
 
   function handle(callback) {
     return async (...args) => {
