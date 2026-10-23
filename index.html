@@ -5103,53 +5103,134 @@ on("skipGPS", "click", () => {
   // ==========================================================
   // 10. PRÉFÉRENCES
   // ==========================================================
+const hoSettingsGroups = [
+    { title: "Musique", icon: "♫", rows: [
+      ["music", "Musique du menu principal", "toggle"],
+      ["musicVolume", "Volume de la musique", "range", 60, "%"]
+    ]},
+    { title: "Effets sonores", icon: "◖", rows: [
+      ["sounds", "Activer les effets sonores", "toggle"],
+      ["effectsVolume", "Volume des effets", "range", 75, "%"],
+      ["buttonSounds", "Sons des boutons", "toggle"],
+      ["feedbackSounds", "Erreurs et validations", "toggle"],
+      ["headstartSounds", "Compte à rebours : avance des cachés", "toggle"],
+      ["finalCountdownSounds", "Compte à rebours : fin de partie", "toggle"],
+      ["gameSounds", "Début, victoire et défaite", "toggle"],
+      ["captureSounds", "Captures", "toggle"],
+      ["xpSounds", "Récompenses et niveaux XP", "toggle"]
+    ]},
+    { title: "Vibrations", icon: "▣", rows: [
+      ["vibration", "Activer les vibrations", "toggle"],
+      ["buttonVibrations", "Vibrations des boutons", "toggle"],
+      ["alertVibrations", "Vibrations des alertes", "toggle"],
+      ["startVibrations", "Début de partie", "toggle"],
+      ["countdownVibrations", "Compte à rebours final", "toggle"],
+      ["captureVibrations", "Lors d'une capture", "toggle"]
+    ]},
+    { title: "Notifications", icon: "◉", rows: [
+      ["notifications", "Notifications générales", "toggle"],
+      ["headstartNotifications", "Fin de l'avance des cachés", "toggle"],
+      ["hunterPositionNotifications", "Positions GPS (chasseurs uniquement)", "toggle"],
+      ["captureNotifications", "Captures (tous les joueurs)", "toggle"],
+      ["connectionNotifications", "Connexion interrompue / rétablie", "toggle"],
+      ["notificationDuration", "Durée des notifications", "range", 4, " s"]
+    ]}
+  ];
 
-  function renderPreferences() {
-    const options = [
-      ["music", "Musique"],
-      ["sounds", "Effets sonores"],
-      ["vibration", "Vibrations"],
-      ["reducedMotion", "Animations réduites"],
-      ["notifications", "Notifications"]
-    ];
+  function hoApplyNeon() {
+    const saved = Number(state.preferences.neonIntensity);
+    const level = Number.isFinite(saved)
+      ? Math.max(0, Math.min(100, saved)) / 100
+      : 0.65;
 
-    $("prefs").innerHTML =
-      options.map(([key, label]) => `
-        <label style="
-          display:flex;
-          justify-content:space-between;
-          padding:12px;
-          gap:15px;
-        ">
-          <span>${label}</span>
-
-          <input
-            type="checkbox"
-            data-pref="${key}"
-            ${
-              state.preferences[key] !== false
-                ? "checked"
-                : ""
-            }
-          >
-        </label>
-      `).join("");
+    document.documentElement.style.setProperty(
+      "--ho-neon",
+      `0 0 ${Math.round(8 * level)}px rgba(255,148,45,${(0.75 * level).toFixed(2)}), ` +
+      `0 0 ${Math.round(24 * level)}px rgba(255,148,45,${(0.4 * level).toFixed(2)})`
+    );
   }
 
-  $("prefs").addEventListener(
-    "change",
-    event => {
-      const key =
-        event.target.dataset.pref;
+  function hoSettingRow(row, unavailable = false) {
+    const [key, label, kind, fallback, unit] = row;
 
-      if (!key) return;
+    if (kind === "toggle") {
+      const checked = state.preferences[key] !== false && !unavailable;
 
-      state.preferences[key] =
-        event.target.checked;
-
-      savePreferences();
+      return `<label class="ho-line">
+        <span class="ho-line-text">${label}</span>
+        <input type="checkbox" data-pref="${key}"
+          aria-label="${label}" ${checked ? "checked" : ""}
+          ${unavailable ? "disabled" : ""}>
+      </label>`;
     }
-  );
+
+    const max = key === "notificationDuration" ? 60 : 100;
+    const saved = state.preferences[key];
+    const parsed = Number(saved);
+    const value = saved != null && Number.isFinite(parsed)
+      ? Math.max(0, Math.min(max, parsed)) : fallback;
+
+    return `<label class="ho-line ho-line-range">
+      <span class="ho-range-heading">
+        <span class="ho-line-text">${label}</span>
+        <span class="ho-value">${value}${unit}</span>
+      </span>
+      <input class="ho-range" type="range" data-ho-range="${key}"
+        min="0" max="${max}" step="1" value="${value}"
+        data-unit="${unit}" style="--progress:${100 * value / max}%">
+    </label>`;
+  }
+
+  function renderPreferences() {
+    const prefs = $("prefs");
+    const vibrationAvailable = typeof navigator.vibrate === "function";
+    prefs.classList.add("ho-settings");
+
+    prefs.innerHTML = hoSettingsGroups.map((group, index) => {
+      const unavailable = group.title === "Vibrations" && !vibrationAvailable;
+      return `<details class="ho-section" ${index === 0 ? "open" : ""}>
+        <summary>
+          <span class="ho-symbol" aria-hidden="true">${group.icon}</span>
+          <span class="ho-section-title">${group.title}</span>
+          <span class="ho-arrow" aria-hidden="true">+</span>
+        </summary>
+        <div class="ho-options">
+          ${group.rows.map(row => hoSettingRow(row, unavailable)).join("")}
+          ${unavailable ? '<p class="ho-caption">Vibrations indisponibles sur ce navigateur.</p>' : ""}
+          ${group.title === "Notifications"
+            ? '<p class="ho-caption">Les alertes critiques de connexion restent visibles jusqu’à résolution.</p>' : ""}
+        </div>
+      </details>`;
+    }).join("") + `
+      <div class="ho-section">
+        <div class="ho-options" style="padding-top:16px">
+          <strong style="color:#FFBA71">✦ Apparence — néon orange</strong>
+          ${hoSettingRow(["neonIntensity", "Intensité des néons", "range", 65, "%"])}
+        </div>
+      </div>
+      <p class="ho-caption">Les sons et notifications de partie seront reliés aux événements du jeu lors d'une prochaine étape.</p>`;
+
+    hoApplyNeon();
+  }
+
+  $("prefs").addEventListener("change", event => {
+    const input = event.target.closest('input[data-pref]');
+    if (!input) return;
+    state.preferences[input.dataset.pref] = input.checked;
+    savePreferences();
+  });
+
+  $("prefs").addEventListener("input", event => {
+    const input = event.target.closest('input[data-ho-range]');
+    if (!input) return;
+    const value = Number(input.value);
+    state.preferences[input.dataset.hoRange] = value;
+    savePreferences();
+    input.style.setProperty("--progress", `${100 * value / Number(input.max)}%`);
+    const display = input.closest(".ho-line").querySelector(".ho-value");
+    if (display) display.textContent = `${value}${input.dataset.unit}`;
+    if (input.dataset.hoRange === "neonIntensity") hoApplyNeon();
+  });
 
   // ==========================================================
   // 11. CONFIGURATION DES PARTIES
