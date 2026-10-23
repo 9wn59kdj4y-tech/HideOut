@@ -2509,6 +2509,79 @@
         opacity: 1;
         transform: translateY(0);
       }
+   /* ==========================================
+   HIDEOUT — MENU ET NEON ORANGE
+   ========================================== */
+
+/* Espacement des trois boutons */
+
+#homeScreen .menu-buttons {
+  gap: clamp(32px, 6dvh, 58px);
+}
+
+#homeScreen .menu-button {
+  min-height: 104px;
+  padding: 12px 14px;
+}
+
+/* Petites icones au-dessus des textes */
+
+#homeScreen .menu-button::before {
+  display: block;
+  margin-bottom: 8px;
+  font-size: 26px;
+  line-height: 1;
+  font-weight: 400;
+  letter-spacing: normal;
+  color: #FF942D;
+}
+
+#homeScreen [data-go="playScreen"]::before {
+  content: "🎮";
+}
+
+#homeScreen [data-go="profileScreen"]::before {
+  content: "👤";
+}
+
+#homeScreen [data-go="settingsScreen"]::before {
+  content: "⚙";
+}
+
+/* Neons des selections */
+
+#roomSettingsScreen .choice-button.selected,
+.choice-button.selected,
+.settings-tab.active,
+.category-button.active,
+.ho-config-v2 .ho-choice.active {
+  border-color: #FF942D;
+  color: #FFAC59;
+  background-color: #382414;
+  box-shadow:
+    0 0 7px rgba(255, 148, 45, .85),
+    0 0 18px rgba(255, 148, 45, .55),
+    0 0 32px rgba(255, 148, 45, .25),
+    inset 0 0 12px rgba(255, 148, 45, .13);
+}
+
+/* Neon sur ON / OFF GPS selectionne */
+
+#roomSettingsScreen
+[data-uncertainty][style*="#ff942d"] {
+  box-shadow:
+    0 0 9px rgba(255, 148, 45, .8),
+    0 0 22px rgba(255, 148, 45, .4);
+}
+
+/* Effet lumineux au toucher du menu */
+
+#homeScreen .menu-button:active:not(:disabled) {
+  border-color: #FF942D;
+  box-shadow:
+    0 0 12px rgba(255, 148, 45, .8),
+    0 0 28px rgba(255, 148, 45, .45);
+}
     </style>
 
     <!-- =============================================== -->
