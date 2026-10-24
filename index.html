@@ -498,11 +498,59 @@
     }
 
     .avatar-card.selected {
-      border-color: var(--orange);
+      position: relative;
+      border-color: #FFFFFF;
+      box-shadow: 0 0 10px #FFFFFF40;
+    }
+
+    .avatar-card.avatar-celebrate {
+      animation: avatarSelection .55s ease;
+      z-index: 1;
+    }
+
+    .avatar-card.avatar-celebrate::after {
+      content: "✦";
+      position: absolute;
+      top: 5px;
+      right: 8px;
+      color: #FFFFFF;
+      font-size: 22px;
+      text-shadow: 0 0 8px #FFFFFF;
+      pointer-events: none;
+      animation: avatarSpark .55s ease both;
+    }
+
+    @keyframes avatarSelection {
+      0%, 100% {
+        transform: translateY(0) scale(1);
+        box-shadow: 0 0 10px #FFFFFF40;
+      }
+
+      40% {
+        transform: translateY(-4px) scale(1.04);
+        box-shadow: 0 0 22px #FFFFFFAA;
+      }
+    }
+
+    @keyframes avatarSpark {
+      0% {
+        opacity: 0;
+        transform: scale(.3) rotate(-30deg);
+      }
+
+      40% {
+        opacity: 1;
+        transform: scale(1.15) rotate(0deg);
+      }
+
+      100% {
+        opacity: 0;
+        transform: scale(.6) rotate(30deg);
+      }
     }
 
     .avatar-card.locked {
-      opacity: .53;
+      opacity: .65;
     }
 
     .avatar-grid {
