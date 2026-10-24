@@ -3935,17 +3935,22 @@
           <!-- Autres joueurs -->
         </div>
 
-        <div class="panel stack">
-
+        <div class="panel stack" id="resultRewardsPanel" hidden>
           <div class="row spread">
-            <h3 style="margin:0">
-              Mes récompenses
+            <h3 id="resultRewardsTitle" style="margin:0">
+              Détail des récompenses
             </h3>
 
-            <span class="xp-orb"></span>
+            <button class="btn-icon"
+                    id="closeResultRewards"
+                    type="button"
+                    aria-label="Fermer le détail">
+              ✕
+            </button>
           </div>
 
-          <div id="myRewards">
+          <div id="myRewards" aria-live="polite"></div>
+        </div>
             <!-- Détail des gains d'XP -->
           </div>
 
