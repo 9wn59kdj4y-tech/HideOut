@@ -8868,7 +8868,7 @@ window.addEventListener(
     // CHOISIR L'ÉCRAN D'ACCUEIL
     // --------------------------------------------------------
 
-    async function enterGame() {
+   async function enterGame() {
       if (!state.user) {
         showScreen("authScreen");
         return;
@@ -8879,16 +8879,42 @@ window.addEventListener(
         return;
       }
 
-      showScreen("homeScreen");
+      const screens = new Set([
+        "homeScreen",
+        "playScreen",
+        "createScreen",
+        "joinScreen",
+        "profileScreen",
+        "collectionScreen",
+        "settingsScreen"
+      ]);
+
+      let destination = "homeScreen";
 
       try {
-        await resumeRoom();
-      } catch (error) {
-        console.warn(
-          "Reprise du salon :",
-          error
+        const saved = sessionStorage.getItem(
+          "hideout_screen_" + state.user.id
         );
+
+        if (screens.has(saved)) {
+          destination = saved;
+        }
+      } catch (error) {
+        console.warn("Lecture du dernier écran :", error);
       }
+
+      // Le serveur décide si un salon ou une partie est à reprendre.
+      try {
+        await resumeRoom();
+
+        if (state.roomId) {
+          return;
+        }
+      } catch (error) {
+        console.warn("Reprise du salon :", error);
+      }
+
+      showScreen(destination);
     }
 
     // --------------------------------------------------------
