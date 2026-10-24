@@ -4409,6 +4409,17 @@ function notify(message, type = "info") {
 
     state.screen = id;
 
+    // Mémoriser l'écran pour ce compte dans cet onglet.
+    if (state.user) {
+      try {
+        sessionStorage.setItem(
+          "hideout_screen_" + state.user.id,
+          id
+        );
+      } catch (error) {
+        console.warn("Sauvegarde de l'écran :", error);
+      }
+    }
     if (id === "profileScreen") {
       renderProfile();
     }
