@@ -5166,41 +5166,52 @@ on("skipGPS", "click", () => {
       renderCollection();
     }
   );
-
-  $("collectionGrid").addEventListener(
+$("collectionGrid").addEventListener(
     "click",
     handle(async event => {
-      const button =
-        event.target.closest(
-          "[data-avatar]"
-        );
+      const grid = $("collectionGrid");
+      const button = event.target.closest("[data-avatar]");
 
-      if (!button) return;
+      if (!button || grid.dataset.saving === "1") return;
 
-      const id =
-        button.dataset.avatar;
+      const id = button.dataset.avatar;
+      const avatar = CATALOG.find(item => item.id === id);
+
+      if (!avatar) return;
 
       if (!isUnlocked(id)) {
-        notify(
-          CHALLENGES[id] ||
-          "Personnage à débloquer."
-        );
-
+        notify(CHALLENGES[id] || "Personnage à débloquer.");
         return;
       }
 
-      await rpc("ho_profile", {
-        p_username:
-          state.profile.username,
+      grid.dataset.saving = "1";
 
-        p_avatar: id
-      });
+      try {
+        await rpc("ho_profile", {
+          p_username: state.profile.username,
+          p_avatar: id
+        });
 
-      await loadProfile();
+        await loadProfile();
 
-      renderCollection();
+        if (state.profile?.avatar !== id) {
+          throw new Error("Sélection non confirmée. Réessaie.");
+        }
 
-      notify("Avatar sélectionné.");
+        if (state.screen === "collectionScreen") {
+          renderCollection();
+
+          const selectedCard = grid.querySelector(
+            `[data-avatar="${id}"]`
+          );
+
+          selectedCard?.classList.add("avatar-celebrate");
+        }
+
+        notify(`${avatar.name} sélectionné.`);
+      } finally {
+        delete grid.dataset.saving;
+      }
     })
   );
 
