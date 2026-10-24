@@ -8693,7 +8693,10 @@ window.addEventListener(
           index + 1;
 
         return `
-          <div class="podium-place">
+          <div class="podium-place"
+               data-result-id="${player ? escapeHTML(player.id) : ""}"
+               role="${player ? "button" : "group"}"
+               tabindex="${player ? "0" : "-1"}">
             ${
               player
                 ? avatarHTML(
@@ -8740,7 +8743,9 @@ window.addEventListener(
     $("rankList").innerHTML =
       ranking.slice(3).map(
         (player, index) => `
-          <div class="ranking-row">
+          <div class="ranking-row"
+               data-result-id="${escapeHTML(player.id)}"
+               role="button" tabindex="0">
 
             <strong>
               #${index + 4}
@@ -8763,45 +8768,10 @@ window.addEventListener(
         `
       ).join("");
 
-    // Récompenses personnelles
-
-    const myResult =
-      ranking.find(
-        player =>
-          player.id === state.user.id
-      );
-
-    const rewards =
-      myResult?.parts || {};
-
-    $("myRewards").innerHTML =
-      Object.entries(rewards)
-        .map(([name, xp]) => `
-          <div
-            class="row spread"
-            style="padding:8px 0"
-          >
-            <span>
-              ${escapeHTML(name)}
-            </span>
-
-            <strong style="color:#51BDFF">
-              +${xp} XP
-            </strong>
-          </div>
-        `).join("") +
-
-        `
-          <h2 style="
-            color:#51BDFF;
-            text-align:right;
-          ">
-            TOTAL :
-            +${myResult?.xp || 0} XP
-          </h2>
-        `;
-
-    // Retour au salon après la manche
+$("resultRewardsPanel").hidden = true;
+    $("myRewards").innerHTML = "";
+ 
+   // Retour au salon après la manche
 
     $("backToLobby").disabled =
       !isHost();
