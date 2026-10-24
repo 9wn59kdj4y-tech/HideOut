@@ -8782,6 +8782,82 @@ $("resultRewardsPanel").hidden = true;
         : "EN ATTENTE DE L'HÔTE";
   }
 
+  function showResultRewards(playerId) {
+    const player = (state.room?.results || []).find(
+      result => String(result.id) === playerId
+    );
+
+    if (!player) return;
+
+    $("resultRewardsTitle").textContent =
+      "Récompenses de " + player.name;
+
+    const details = Object.entries(player.parts || {})
+      .map(([name, xp]) => `
+        <div class="row spread"
+             style="padding:8px 0;gap:12px">
+          <span>${escapeHTML(name)}</span>
+
+          <strong style="color:var(--orange)">
+            +${escapeHTML(xp)} XP
+          </strong>
+        </div>
+      `).join("");
+
+    $("myRewards").innerHTML = `
+      ${avatarHTML(player.avatar, 64)}
+
+      ${
+        details ||
+        '<p class="muted">Détail indisponible pour cette partie.</p>'
+      }
+
+      <h2 style="
+        color:var(--orange);
+        text-align:right;
+        margin:12px 0 0;
+      ">
+        TOTAL : +${escapeHTML(player.xp ?? 0)} XP
+      </h2>
+    `;
+
+    const panel = $("resultRewardsPanel");
+
+    panel.hidden = false;
+    panel.scrollIntoView({ block: "nearest" });
+  }
+
+  on("resultsScreen", "click", event => {
+    const card = event.target.closest(
+      "[data-result-id]"
+    );
+
+    const playerId = card?.dataset.resultId;
+
+    if (playerId) {
+      showResultRewards(playerId);
+    }
+  });
+
+  on("resultsScreen", "keydown", event => {
+    if (
+      event.key !== "Enter" &&
+      event.key !== " "
+    ) return;
+
+    const card = event.target.closest(
+      "[data-result-id]"
+    );
+
+    if (!card?.dataset.resultId) return;
+
+    event.preventDefault();
+    card.click();
+  });
+
+  on("closeResultRewards", "click", () => {
+    $("resultRewardsPanel").hidden = true;
+  });
   on("backToLobby", "click", async () => {
     await rpc(
       "ho_back_to_lobby",
