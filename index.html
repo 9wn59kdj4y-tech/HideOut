@@ -6072,6 +6072,13 @@ $$("[data-room-mode]").forEach(button => {
   }); 
 
   on("leaveLobby", "click", async () => {
+  if (!state.roomId) return;
+
+    const confirmed = window.confirm(
+      "Quitter le salon ?\n\nTu reviendras au menu principal."
+    );
+
+    if (!confirmed) return;
     await rpc("ho_leave", {
       p_room: state.roomId
     });
