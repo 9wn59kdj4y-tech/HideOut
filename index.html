@@ -5033,10 +5033,13 @@ on("skipGPS", "click", () => {
           </button>
         `).join("");
 
-    const avatars =
-      CATALOG.filter(
-        avatar =>
-          avatar.category === state.category
+    const avatars = CATALOG
+      .filter(avatar =>
+        avatar.category === state.category
+      )
+      .sort((a, b) =>
+        Number(isUnlocked(b.id)) -
+        Number(isUnlocked(a.id))
       );
 
     $("collectionGrid").innerHTML =
