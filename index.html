@@ -6,7 +6,26 @@
   <meta name="theme-color" content="#1C1C1C">
   <meta name="description" content="HIDEOUT : le jeu de cache-cache grandeur nature.">
   <title>HIDEOUT</title>
+<!-- Éviter le flash de l'intro après actualisation -->
+  <script>
+    try {
+      if (
+        sessionStorage.getItem("hideout_intro_seen") === "1"
+      ) {
+        document.documentElement.classList.add(
+          "hideout-skip-intro"
+        );
+      }
+    } catch (error) {
+      console.warn("Lecture de l'état de l'intro :", error);
+    }
+  </script>
 
+  <style>
+    html.hideout-skip-intro #intro {
+      display: none !important;
+    }
+  </style>
   <!-- HIDEOUT V2 -->
   <!-- PARTIE 1 : STRUCTURE ET STYLE GLOBAL -->
   <!-- Ajouter les parties suivantes dans ce même fichier. -->
