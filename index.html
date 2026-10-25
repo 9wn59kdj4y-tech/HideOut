@@ -1765,6 +1765,72 @@ h3 {
 
 /* AMIS */
 
+/* Compteur des demandes reçues */
+
+.friends-tab {
+  position: relative;
+  overflow: visible;
+}
+
+.friends-tab .friends-count {
+  position: absolute;
+  top: -8px;
+  right: -5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 25px;
+  height: 25px;
+  padding: 0 6px;
+  border: 2px solid #1C1C1C;
+  border-radius: 999px;
+  background: linear-gradient(145deg, #FF747D, #E32940);
+  color: white;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1;
+  box-shadow:
+    0 0 8px #FF405F80,
+    0 0 17px #FF405F35,
+    inset 0 1px 2px #FFFFFF55;
+  pointer-events: none;
+}
+
+/* Présence des amis */
+
+.friend-presence {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 12px;
+  font-weight: 650;
+}
+
+.friend-presence-dot {
+  width: 8px;
+  height: 8px;
+  flex-shrink: 0;
+  border-radius: 50%;
+}
+
+.friend-presence.is-online {
+  color: #82E3AB;
+}
+
+.is-online .friend-presence-dot {
+  background: #54DB8B;
+  box-shadow: 0 0 7px #54DB8B70;
+}
+
+.friend-presence.is-offline {
+  color: #E8989E;
+}
+
+.is-offline .friend-presence-dot {
+  background: #EF6673;
+  box-shadow: 0 0 5px #EF667340;
+}
+    
 .friends-live-list {
   display: grid;
   gap: 16px;
