@@ -5700,6 +5700,7 @@ const hoSettingsGroups = [
       </div>
       <p class="ho-caption">Les sons et notifications de partie seront reliés aux événements du jeu lors d'une prochaine étape.</p>`;
     hoApplyNeon();
+    loadDoNotDisturb();
   }
   $("prefs").addEventListener("change", event => {
     const input = event.target.closest('input[data-pref]');
