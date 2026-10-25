@@ -2759,6 +2759,190 @@ h3 {
       </div>
     </section>
 
+    <!-- AMIS -->
+
+    <section id="friendsScreen" class="screen">
+      <div class="container stack">
+
+        <div class="page-top">
+          <button
+            class="btn inline subtle"
+            data-go="homeScreen">
+            ← ACCUEIL
+          </button>
+
+          <span class="eyebrow">MES AMIS</span>
+        </div>
+
+        <h1 class="page-title">Amis</h1>
+
+        <p class="friends-intro">
+          Retrouve tes amis et prépare vos prochaines parties.
+        </p>
+
+        <div
+          class="friends-tabs"
+          role="tablist"
+          aria-label="Amis et demandes">
+
+          <button
+            id="friendsTab-list"
+            class="friends-tab"
+            type="button"
+            role="tab"
+            aria-selected="true"
+            aria-controls="friendsPanel-list"
+            tabindex="0"
+            data-friends-tab="list">
+            <span>Mes</span>
+            <span>amis</span>
+          </button>
+
+          <button
+            id="friendsTab-sent"
+            class="friends-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="friendsPanel-sent"
+            tabindex="-1"
+            data-friends-tab="sent">
+            <span>Demandes</span>
+            <span>envoyées</span>
+          </button>
+
+          <button
+            id="friendsTab-received"
+            class="friends-tab"
+            type="button"
+            role="tab"
+            aria-selected="false"
+            aria-controls="friendsPanel-received"
+            tabindex="-1"
+            data-friends-tab="received">
+            <span>Demandes</span>
+            <span>reçues</span>
+          </button>
+
+        </div>
+
+        <div
+          id="friendsPanel-list"
+          class="friends-panel"
+          role="tabpanel"
+          aria-labelledby="friendsTab-list"
+          tabindex="0">
+
+          <div class="friends-card friends-empty">
+            <span class="friends-soon">
+              Bientôt disponible
+            </span>
+
+            <h2>Tes amis, réunis ici</h2>
+
+            <p>
+              Retrouve ta liste d’amis et ouvre leur
+              profil pour consulter leurs statistiques.
+            </p>
+          </div>
+
+        </div>
+
+        <div
+          id="friendsPanel-sent"
+          class="friends-panel"
+          role="tabpanel"
+          aria-labelledby="friendsTab-sent"
+          tabindex="0"
+          hidden>
+
+          <div class="friends-card">
+
+            <label
+              class="friends-search-label"
+              for="friendsSearchInput">
+              Ajouter un ami
+            </label>
+
+            <div class="friends-search-row">
+              <input
+                id="friendsSearchInput"
+                type="search"
+                placeholder="Chercher un pseudo…"
+                maxlength="22"
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                aria-describedby="friendsSearchHint"
+                disabled>
+
+              <button
+                class="btn"
+                type="button"
+                disabled>
+                RECHERCHER
+              </button>
+            </div>
+
+            <p
+              id="friendsSearchHint"
+              class="friends-search-hint">
+              La recherche de joueurs sera bientôt disponible.
+            </p>
+
+          </div>
+
+          <div class="friends-card friends-empty friends-spacing">
+            <h2>Demandes en attente</h2>
+
+            <p>
+              Les demandes que tu enverras apparaîtront
+              ici jusqu’à leur acceptation.
+            </p>
+          </div>
+
+        </div>
+
+        <div
+          id="friendsPanel-received"
+          class="friends-panel"
+          role="tabpanel"
+          aria-labelledby="friendsTab-received"
+          tabindex="0"
+          hidden>
+
+          <div class="friends-card friends-empty">
+
+            <span class="friends-soon">
+              Bientôt disponible
+            </span>
+
+            <h2>Demandes reçues</h2>
+
+            <p>
+              Retrouve les demandes d’amis reçues
+              et choisis de les accepter ou de les refuser.
+            </p>
+
+            <div
+              class="friends-request-guide"
+              aria-label="Couleurs des futures actions">
+              <span class="friends-decline-label">
+                Refuser
+              </span>
+
+              <span class="friends-accept-label">
+                Accepter
+              </span>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+    </section>
+ 
     <!-- COLLECTION DE PERSONNAGES                        -->
 
     <section id="collectionScreen" class="screen">
