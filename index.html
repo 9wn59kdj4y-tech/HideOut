@@ -6638,7 +6638,8 @@ $$("[data-room-mode]").forEach(button => {
             state.room.players.some(
               p => p.id === player.id
             );
-
+const dnd = player.doNotDisturb === true;
+          
           return `
             <div class="friend-row room-invite-choice">
               <div class="friend-identity">
@@ -6653,15 +6654,31 @@ $$("[data-room-mode]").forEach(button => {
                     player,
                     "friend"
                   )}
+             ${dnd ? `
+                    <span class="small" style="color:#FFAC59">
+                      Ne pas déranger
+                    </span>
+                  ` : ""}
                 </div>
               </div>
 
-              <button
+            <button
                 class="btn friend-action"
                 type="button"
                 data-invite-friend="${escapeHTML(player.id)}"
-                ${alreadyHere ? "disabled" : ""}>
-                ${alreadyHere ? "DÉJÀ ICI" : "INVITER"}
+                ${alreadyHere || dnd ? "disabled" : ""}
+                ${
+                  dnd
+                    ? 'title="Cet ami est en mode Ne pas déranger"'
+                    : ""
+                }>
+                ${
+                  alreadyHere
+                    ? "DÉJÀ ICI"
+                    : dnd
+                      ? "INDISPONIBLE"
+                      : "INVITER"
+                }
               </button>
             </div>
           `;
