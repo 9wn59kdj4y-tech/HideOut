@@ -4191,6 +4191,100 @@ function notify(message, type = "info") {
     });
   });
 
+ let friendsPresenceRunning = false;
+
+  async function refreshFriendsPresence() {
+    if (
+      friendsPresenceRunning ||
+      !state.user ||
+      !state.profile ||
+      !state.supabase ||
+      document.visibilityState !== "visible"
+    ) return;
+
+    friendsPresenceRunning = true;
+
+    try {
+      await rpc("ho_friends_presence");
+    } catch (error) {
+      console.warn(
+        "Présence amis :",
+        error.message
+      );
+    } finally {
+      friendsPresenceRunning = false;
+    }
+  }
+
+  function updateFriendsBadge() {
+    const tab = $("friendsTab-received");
+    let badge = $("friendsReceivedCount");
+
+    if (!badge) {
+      badge = document.createElement("span");
+      badge.id = "friendsReceivedCount";
+      badge.className = "friends-count";
+      badge.setAttribute("aria-hidden", "true");
+      tab.appendChild(badge);
+    }
+
+    const count = friendsRows.filter(
+      player => player.relationship === "received"
+    ).length;
+
+    badge.textContent = count > 99
+      ? "99+"
+      : String(count);
+
+    badge.hidden = count === 0;
+
+    tab.setAttribute(
+      "aria-label",
+      `Demandes reçues, ${count} en attente`
+    );
+  }
+
+  function friendPresenceHTML(player, relationship) {
+    if (relationship !== "friend") return "";
+
+    const online = player.online === true;
+
+    return `
+      <span class="friend-presence ${
+        online ? "is-online" : "is-offline"
+      }">
+        <span
+          class="friend-presence-dot"
+          aria-hidden="true">
+        </span>
+
+        ${online ? "En ligne" : "Hors ligne"}
+      </span>
+    `;
+  }
+
+  setInterval(refreshFriendsPresence, 25000);
+
+  document.addEventListener(
+    "visibilitychange",
+    async () => {
+      if (
+        document.visibilityState !== "visible"
+      ) return;
+
+      await refreshFriendsPresence();
+
+      if (
+        state.screen === "friendsScreen" &&
+        !friendsBusy
+      ) {
+        loadFriends();
+      }
+    }
+  );
+
+  updateFriendsBadge();
+  
   function friendButton(
     id,
     action,
