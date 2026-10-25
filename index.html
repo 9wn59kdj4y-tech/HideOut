@@ -118,6 +118,11 @@
       background: var(--bg);
     }
 
+    html:not([data-hideout-screen="resultsScreen"]) #backToLobby,
+    html:not([data-hideout-screen="resultsScreen"])
+      #backToLobby + button[data-go="homeScreen"] {
+      display: none !important;
+    }
     .screen {
       display: none;
       min-height: calc(100dvh - var(--top-safe) - var(--bottom-safe));
