@@ -5089,6 +5089,8 @@ const { error } =
   async function loadProfile() {
     state.profile =
       await rpc("ho_my_profile");
+
+    refreshFriendsPresence();
   }
   on("saveNewPseudo", "click", async () => {
     const username =
