@@ -4480,6 +4480,7 @@ function notify(message, type = "info") {
       });
 
     state.screen = id;
+    document.documentElement.dataset.hideoutScreen = id;
 
     // Mémoriser l'écran pour ce compte dans cet onglet.
     if (state.user) {
