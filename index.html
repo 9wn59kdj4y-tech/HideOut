@@ -3971,17 +3971,113 @@ function notify(message, type = "info") {
   // 5. NAVIGATION
   // ==========================================================
 
-// Navigation des onglets Amis
+
+  // AMIS : recherche, demandes et profils.
+
+  let friendsOwner = null;
+  let friendsRows = [];
+  let friendsResults = [];
+  let friendsLoading = false;
+  let friendsBusy = false;
+  let friendsSearchVersion = 0;
+
+  $("friendsPanel-list").innerHTML = `
+    <p
+      id="friendsStatus"
+      class="small muted"
+      role="status">
+    </p>
+
+    <button
+      id="friendsRefresh"
+      class="btn inline"
+      type="button">
+      ACTUALISER
+    </button>
+
+    <div
+      id="friendsList"
+      class="friends-live-list">
+    </div>
+  `;
+
+  $("friendsPanel-sent").innerHTML = `
+    <form
+      id="friendsSearchForm"
+      class="friends-card">
+
+      <label
+        class="friends-search-label"
+        for="friendsSearchInput">
+        Ajouter un ami
+      </label>
+
+      <div class="friends-search-row">
+        <input
+          id="friendsSearchInput"
+          type="search"
+          placeholder="Chercher un pseudo…"
+          minlength="2"
+          maxlength="22"
+          required
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          aria-describedby="friendsSearchStatus">
+
+        <button class="btn" type="submit">
+          RECHERCHER
+        </button>
+      </div>
+
+      <p
+        id="friendsSearchStatus"
+        class="small muted"
+        role="status">
+      </p>
+
+      <div
+        id="friendsSearchResults"
+        class="friends-live-list">
+      </div>
+    </form>
+
+    <h2 class="friends-section-title">
+      Demandes en attente
+    </h2>
+
+    <div
+      id="friendsSentList"
+      class="friends-live-list">
+    </div>
+  `;
+
+  $("friendsPanel-received").innerHTML = `
+    <p class="small muted">
+      Accepte ou refuse les demandes reçues.
+    </p>
+
+    <div
+      id="friendsReceivedList"
+      class="friends-live-list">
+    </div>
+  `;
+
+  $("friendsScreen")
+    .querySelector(".friends-tabs")
+    .insertAdjacentHTML(
+      "afterend",
+      `<p
+        id="friendsActionStatus"
+        class="small muted"
+        role="status">
+      </p>`
+    );
 
   function selectFriendsTab(name, focus = false) {
-    const names = ["list", "sent", "received"];
-
-    if (!names.includes(name)) return;
-
-    names.forEach(tabName => {
+    ["list", "sent", "received"].forEach(tabName => {
       const selected = tabName === name;
       const tab = $("friendsTab-" + tabName);
-      const panel = $("friendsPanel-" + tabName);
 
       tab.setAttribute(
         "aria-selected",
@@ -3989,7 +4085,9 @@ function notify(message, type = "info") {
       );
 
       tab.tabIndex = selected ? 0 : -1;
-      panel.hidden = !selected;
+
+      $("friendsPanel-" + tabName).hidden =
+        !selected;
 
       if (selected && focus) {
         tab.focus();
@@ -4011,28 +4109,475 @@ function notify(message, type = "info") {
       let next;
 
       if (event.key === "ArrowRight") {
-        next = (index + 1) % names.length;
+        next = (index + 1) % 3;
       }
 
       if (event.key === "ArrowLeft") {
-        next = (index + names.length - 1) % names.length;
+        next = (index + 2) % 3;
       }
 
-      if (event.key === "Home") {
-        next = 0;
-      }
-
-      if (event.key === "End") {
-        next = names.length - 1;
-      }
-
+      if (event.key === "Home") next = 0;
+      if (event.key === "End") next = 2;
       if (next === undefined) return;
 
       event.preventDefault();
       selectFriendsTab(names[next], true);
     });
   });
- 
+
+  function friendButton(
+    id,
+    action,
+    label,
+    color = ""
+  ) {
+    return `
+      <button
+        type="button"
+        class="btn friend-action ${color}"
+        data-friend-id="${escapeHTML(id)}"
+        data-friend-action="${action}"
+        ${friendsBusy ? "disabled" : ""}>
+        ${label}
+      </button>
+    `;
+  }
+
+  function friendCard(player, relationship) {
+    const avatar = CATALOG.some(
+      item => item.id === player.avatar
+    )
+      ? player.avatar
+      : "chat";
+
+    const level = calculateLevel(
+      Number(player.xp) || 0
+    );
+
+    const header = `
+      <div class="friend-identity">
+        ${avatarHTML(avatar, 54)}
+
+        <div class="friend-name">
+          <strong>
+            ${escapeHTML(player.username)}
+          </strong>
+
+          <span class="small muted">
+            Niveau ${level}
+          </span>
+        </div>
+      </div>
+    `;
+
+    let actions = "";
+
+    if (relationship === "none") {
+      actions = friendButton(
+        player.id,
+        "send",
+        "AJOUTER"
+      );
+    } else if (relationship === "sent") {
+      actions = `
+        <span class="small muted">
+          Demande envoyée
+        </span>
+      ` + friendButton(
+        player.id,
+        "cancel",
+        "ANNULER"
+      );
+    } else if (relationship === "received") {
+      actions = friendButton(
+        player.id,
+        "decline",
+        "REFUSER",
+        "friend-decline"
+      ) + friendButton(
+        player.id,
+        "accept",
+        "ACCEPTER",
+        "friend-accept"
+      );
+    } else {
+      actions = `
+        <span class="friend-already">
+          Déjà amis
+        </span>
+      `;
+    }
+
+    if (
+      relationship !== "friend" ||
+      player.games === undefined
+    ) {
+      return `
+        <article class="friends-card friend-row">
+          ${header}
+
+          <div class="friend-actions">
+            ${actions}
+          </div>
+        </article>
+      `;
+    }
+
+    const stats = [
+      ["Parties jouées", player.games],
+      ["Victoires", player.wins],
+      ["Victoires coureur", player.runnerWins],
+      ["Victoires chasseur", player.hunterWins]
+    ];
+
+    return `
+      <details class="friends-card friend-profile">
+        <summary>
+          ${header}
+
+          <span class="friend-open">
+            Voir le profil
+          </span>
+        </summary>
+
+        <div class="friend-profile-body">
+          <p class="friend-xp">
+            ${escapeHTML(
+              Number(player.xp || 0)
+                .toLocaleString("fr-FR")
+            )} XP
+          </p>
+
+          <div class="stat-grid">
+            ${stats.map(([label, value]) => `
+              <div class="stat-box">
+                <div class="stat-value">
+                  ${escapeHTML(value ?? 0)}
+                </div>
+
+                <div class="stat-label">
+                  ${label}
+                </div>
+              </div>
+            `).join("")}
+          </div>
+
+          <div class="friend-actions">
+            ${friendButton(
+              player.id,
+              "remove",
+              "RETIRER DES AMIS",
+              "friend-decline"
+            )}
+          </div>
+        </div>
+      </details>
+    `;
+  }
+
+  function renderFriendsLists() {
+    const lists = [
+      [
+        "friend",
+        "friendsList",
+        "Tu n’as pas encore d’amis. Recherche un pseudo dans Demandes envoyées."
+      ],
+      [
+        "sent",
+        "friendsSentList",
+        "Aucune demande envoyée en attente."
+      ],
+      [
+        "received",
+        "friendsReceivedList",
+        "Aucune demande reçue en attente."
+      ]
+    ];
+
+    lists.forEach(([kind, id, empty]) => {
+      const rows = friendsRows.filter(
+        player => player.relationship === kind
+      );
+
+      const openIds = [
+        ...$(id).querySelectorAll("details[open]")
+      ].map(detail =>
+        detail.querySelector("[data-friend-id]")
+          ?.dataset.friendId
+      );
+
+      $(id).innerHTML = rows.length
+        ? rows.map(
+            player => friendCard(player, kind)
+          ).join("")
+        : `
+          <div class="friends-card friends-empty">
+            <p>${empty}</p>
+          </div>
+        `;
+
+      $(id).querySelectorAll("details")
+        .forEach(detail => {
+          detail.open = openIds.includes(
+            detail.querySelector("[data-friend-id]")
+              ?.dataset.friendId
+          );
+        });
+    });
+  }
+
+  function renderFriendsSearch() {
+    $("friendsSearchResults").innerHTML =
+      friendsResults.map(player => {
+        const known = friendsRows.find(
+          row => row.id === player.id
+        );
+
+        return friendCard(
+          known || player,
+          known?.relationship || player.relationship
+        );
+      }).join("");
+  }
+
+  async function loadFriends() {
+    const userId = state.user?.id;
+    if (!userId) return;
+
+    if (friendsOwner !== userId) {
+      friendsOwner = userId;
+      friendsRows = [];
+      friendsResults = [];
+      friendsSearchVersion++;
+
+      $("friendsSearchInput").value = "";
+      $("friendsList").innerHTML = "";
+      $("friendsSentList").innerHTML = "";
+      $("friendsReceivedList").innerHTML = "";
+      $("friendsSearchResults").innerHTML = "";
+      $("friendsActionStatus").textContent = "";
+      $("friendsSearchStatus").textContent = "";
+
+      friendsLoading = false;
+    }
+
+    if (friendsLoading) return;
+    friendsLoading = true;
+
+    $("friendsStatus").textContent =
+      "Actualisation…";
+
+    try {
+      const rows = await rpc("ho_friends_list");
+
+      if (
+        state.user?.id !== userId ||
+        friendsOwner !== userId
+      ) return;
+
+      friendsRows = Array.isArray(rows)
+        ? rows
+        : [];
+
+      renderFriendsLists();
+      renderFriendsSearch();
+
+      $("friendsStatus").textContent = "";
+    } catch (error) {
+      if (
+        state.user?.id === userId &&
+        friendsOwner === userId
+      ) {
+        $("friendsStatus").textContent =
+          "Actualisation impossible. Réessaie avec ACTUALISER.";
+
+        $("friendsActionStatus").textContent =
+          error.message;
+      }
+    } finally {
+      if (friendsOwner === userId) {
+        friendsLoading = false;
+      }
+    }
+  }
+
+  async function searchFriends() {
+    const query =
+      $("friendsSearchInput").value.trim();
+
+    const userId = state.user?.id;
+    const version = ++friendsSearchVersion;
+
+    friendsResults = [];
+    renderFriendsSearch();
+
+    if (
+      !userId ||
+      query.length < 2 ||
+      query.length > 22
+    ) {
+      $("friendsSearchStatus").textContent =
+        "Entre entre 2 et 22 caractères.";
+      return;
+    }
+
+    $("friendsSearchStatus").textContent =
+      "Recherche…";
+
+    try {
+      const rows = await rpc(
+        "ho_friends_search",
+        { p_query: query }
+      );
+
+      if (
+        version !== friendsSearchVersion ||
+        state.user?.id !== userId
+      ) return;
+
+      friendsResults = Array.isArray(rows)
+        ? rows
+        : [];
+
+      renderFriendsSearch();
+
+      $("friendsSearchStatus").textContent =
+        friendsResults.length
+          ? `${friendsResults.length} joueur(s) trouvé(s).`
+          : "Aucun joueur trouvé.";
+    } catch (error) {
+      if (
+        version === friendsSearchVersion &&
+        state.user?.id === userId
+      ) {
+        $("friendsSearchStatus").textContent =
+          error.message;
+      }
+    }
+  }
+
+  $("friendsSearchForm").addEventListener(
+    "submit",
+    event => {
+      event.preventDefault();
+      searchFriends();
+    }
+  );
+
+  $("friendsSearchInput").addEventListener(
+    "input",
+    () => {
+      friendsSearchVersion++;
+      friendsResults = [];
+
+      renderFriendsSearch();
+
+      $("friendsSearchStatus").textContent = "";
+    }
+  );
+
+  $("friendsRefresh").addEventListener(
+    "click",
+    () => {
+      if (!friendsBusy) loadFriends();
+    }
+  );
+
+  $("friendsScreen").addEventListener(
+    "click",
+    async event => {
+      const button = event.target.closest(
+        "[data-friend-action]"
+      );
+
+      if (
+        !button ||
+        friendsBusy ||
+        !state.user
+      ) return;
+
+      const action = button.dataset.friendAction;
+      const target = button.dataset.friendId;
+      const userId = state.user.id;
+
+      if (
+        action === "remove" &&
+        !confirm("Retirer ce joueur de tes amis ?")
+      ) return;
+
+      friendsBusy = true;
+
+      $("friendsScreen")
+        .querySelectorAll("[data-friend-action]")
+        .forEach(item => item.disabled = true);
+
+      $("friendsActionStatus").textContent =
+        "En cours…";
+
+      try {
+        const result = await rpc(
+          "ho_friends_action",
+          {
+            p_target: target,
+            p_action: action
+          }
+        );
+
+        if (state.user?.id !== userId) return;
+
+        const messages = {
+          sent: "Demande envoyée.",
+          accepted: "Ami ajouté !",
+          declined: "Demande refusée.",
+          cancelled: "Demande annulée.",
+          removed: "Ami retiré.",
+          already_friends: "Vous êtes déjà amis.",
+          already_sent: "Ta demande est déjà en attente.",
+          request_received:
+            "Ce joueur t’a déjà envoyé une demande. Consulte Demandes reçues."
+        };
+
+        $("friendsActionStatus").textContent =
+          messages[result] || "Action effectuée.";
+
+        friendsResults = [];
+        renderFriendsSearch();
+
+        await loadFriends();
+
+        if (
+          state.user?.id === userId &&
+          $("friendsSearchInput").value.trim().length >= 2
+        ) {
+          await searchFriends();
+        }
+      } catch (error) {
+        if (state.user?.id === userId) {
+          $("friendsActionStatus").textContent =
+            error.message;
+        }
+      } finally {
+        friendsBusy = false;
+
+        $("friendsScreen")
+          .querySelectorAll("[data-friend-action]")
+          .forEach(item => item.disabled = false);
+      }
+    }
+  );
+
+  setInterval(() => {
+    if (
+      state.screen === "friendsScreen" &&
+      state.user &&
+      document.visibilityState === "visible" &&
+      !friendsBusy &&
+      !friendsLoading
+    ) {
+      loadFriends();
+    }
+  }, 15000);
+  
   function showScreen(id) {
     $$(".screen, .game-screen, .full-game-overlay")
       .forEach(screen => {
