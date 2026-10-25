@@ -5473,6 +5473,35 @@ const hoSettingsGroups = [
 
   function hoSettingRow(row, unavailable = false) {
     const [key, label, kind, fallback, unit] = row;
+  if (key === "doNotDisturb") {
+      const own = dndOwner === state.user?.id;
+
+      return `
+        <label class="ho-line">
+          <span class="ho-line-text">
+            Ne pas déranger
+          </span>
+
+          <input
+            type="checkbox"
+            data-pref="doNotDisturb"
+            aria-label="Ne pas déranger"
+            aria-describedby="dndStatus"
+            ${own && dndValue ? "checked" : ""}
+            ${
+              !own || !dndLoaded || dndBusy
+                ? "disabled"
+                : ""
+            }>
+        </label>
+
+        <p id="dndStatus" class="ho-caption" role="status">
+          Bloque les invitations aux salons.
+          Les demandes d’amis restent disponibles.
+        </p>
+      `;
+    }
+    
     if (kind === "toggle") {
       const checked = state.preferences[key] !== false && !unavailable;
       return `<label class="ho-line">
