@@ -1763,6 +1763,187 @@ h3 {
   content: "⚙";
 }
 
+/* AMIS */
+
+#homeScreen .friends-menu-icon {
+  display: block;
+  width: 29px;
+  height: 29px;
+  margin: 0 auto 8px;
+  color: #FF942D;
+}
+
+#homeScreen [data-go="friendsScreen"]::before {
+  content: none;
+}
+
+#friendsScreen .friends-intro {
+  margin: -8px 0 4px;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+.friends-tabs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+  padding: 10px 4px 18px;
+}
+
+.friends-tab {
+  min-width: 0;
+  min-height: 72px;
+  padding: 10px 5px;
+  border: 1px solid #454545;
+  border-radius: 14px;
+  background: #171717;
+  color: #C9C9C9;
+  font-size: clamp(12px, 2.8vw, 15px);
+  font-weight: 750;
+  line-height: 1.35;
+  transition:
+    color .18s,
+    background .18s,
+    border-color .18s,
+    box-shadow .18s;
+}
+
+.friends-tab span {
+  display: block;
+}
+
+.friends-tab[aria-selected="true"] {
+  color: #FFAC59;
+  border-color: #FF942D;
+  background: #382414;
+  box-shadow:
+    0 0 12px #FF942D35,
+    inset 0 0 14px #FF942D12;
+}
+
+.friends-panel {
+  min-width: 0;
+}
+
+.friends-card {
+  padding: clamp(20px, 5vw, 30px);
+  border: 1px solid #383838;
+  border-radius: 22px;
+  background: linear-gradient(155deg, #232323, #151515);
+  box-shadow: -4px 5px 0 #101010;
+}
+
+.friends-card h2 {
+  margin: 0 0 8px;
+  font-size: 20px;
+}
+
+.friends-card p {
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.friends-empty {
+  text-align: center;
+  padding-block: 34px;
+}
+
+.friends-empty p {
+  max-width: 34ch;
+  margin: 0 auto;
+}
+
+.friends-spacing {
+  margin-top: 18px;
+}
+
+.friends-soon {
+  display: inline-block;
+  margin-bottom: 20px;
+  padding: 6px 12px;
+  border: 1px solid #665039;
+  border-radius: 999px;
+  color: #FFAC59;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.friends-search-label {
+  display: block;
+  margin-bottom: 10px;
+  font-weight: 700;
+}
+
+.friends-search-row {
+  display: flex;
+  gap: 10px;
+  align-items: stretch;
+}
+
+.friends-search-row input {
+  flex: 1;
+  min-width: 0;
+  width: 100%;
+}
+
+.friends-search-row .btn {
+  flex: 0 0 auto;
+  width: auto;
+  padding-inline: 16px;
+}
+
+.friends-search-hint {
+  margin: 12px 0 0;
+  font-size: 13px;
+}
+
+.friends-request-guide {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.friends-accept-label,
+.friends-decline-label {
+  padding: 9px 15px;
+  border-radius: 9px;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.friends-accept-label {
+  color: #82E3AB;
+  border: 1px solid #337A51;
+  background: #163423;
+}
+
+.friends-decline-label {
+  color: #FF9299;
+  border: 1px solid #88464B;
+  background: #3C2023;
+}
+
+@media (max-width: 380px) {
+  .friends-tabs {
+    gap: 6px;
+  }
+
+  .friends-search-row {
+    flex-direction: column;
+  }
+
+  #homeScreen .menu-button {
+    min-height: 84px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .friends-tab {
+    transition: none;
+  }
+}
 #roomSettingsScreen .choice-button.selected,
 .choice-button.selected,
 .category-button.active {
