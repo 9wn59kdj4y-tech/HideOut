@@ -4510,6 +4510,7 @@ function notify(message, type = "info") {
     if (friendsOwner !== userId) {
       friendsOwner = userId;
       friendsRows = [];
+      updateFriendsBadge();
       friendsResults = [];
       friendsSearchVersion++;
 
