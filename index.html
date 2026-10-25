@@ -4590,7 +4590,10 @@ function notify(message, type = "info") {
       });
     state.screen = id;
     document.documentElement.dataset.hideoutScreen = id;
-
+if (id === "friendsScreen") {
+      loadFriends();
+    }
+   
     // Mémoriser l'écran pour ce compte dans cet onglet.
     if (state.user) {
       try {
