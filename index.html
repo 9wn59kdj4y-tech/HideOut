@@ -4813,7 +4813,8 @@ function notify(message, type = "info") {
       });
     state.screen = id;
     document.documentElement.dataset.hideoutScreen = id;
-if (id === "friendsScreen") {
+    syncRoomInviteUI();
+    if (id === "friendsScreen") {
       loadFriends();
     }
    
