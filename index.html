@@ -5702,12 +5702,26 @@ const hoSettingsGroups = [
     hoApplyNeon();
     loadDoNotDisturb();
   }
-  $("prefs").addEventListener("change", event => {
-    const input = event.target.closest('input[data-pref]');
-    if (!input) return;
-    state.preferences[input.dataset.pref] = input.checked;
-    savePreferences();
-  });
+  $("prefs").addEventListener(
+    "change",
+    async event => {
+      const input = event.target.closest(
+        "input[data-pref]"
+      );
+
+      if (!input) return;
+
+      if (input.dataset.pref === "doNotDisturb") {
+        await saveDoNotDisturb(input);
+        return;
+      }
+
+      state.preferences[input.dataset.pref] =
+        input.checked;
+
+      savePreferences();
+    }
+  );
   $("prefs").addEventListener("input", event => {
     const input = event.target.closest('input[data-ho-range]');
     if (!input) return;
