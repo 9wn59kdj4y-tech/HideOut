@@ -6180,6 +6180,497 @@ $$("[data-room-mode]").forEach(button => {
     );
     notify("Code copié.");
   });
+  // INVITATIONS AUX SALONS
+
+  let roomInviteRows = [];
+  let roomInviteOwner = null;
+  let roomInviteLoading = false;
+  let roomInviteBusy = false;
+  let roomInvitePickerRoom = null;
+
+  $("lobbyPlayers").insertAdjacentHTML(
+    "beforebegin",
+    `
+      <button
+        id="openFriendInvites"
+        class="btn"
+        type="button"
+        aria-expanded="false"
+        aria-controls="friendInvitePicker">
+        INVITER UN AMI
+      </button>
+
+      <div
+        id="friendInvitePicker"
+        class="panel"
+        hidden>
+
+        <div class="row spread">
+          <h3>Inviter un ami</h3>
+
+          <button
+            id="closeFriendInvites"
+            class="btn inline subtle"
+            type="button">
+            FERMER
+          </button>
+        </div>
+
+        <p
+          id="friendInviteMessage"
+          class="small muted"
+          role="status">
+        </p>
+
+        <div
+          id="friendInviteChoices"
+          class="friends-live-list">
+        </div>
+      </div>
+    `
+  );
+
+  document.body.insertAdjacentHTML(
+    "beforeend",
+    `
+      <aside
+        id="roomInviteNotice"
+        class="room-invite-notice"
+        aria-label="Invitation à un salon"
+        hidden>
+
+        <p class="eyebrow">
+          INVITATION À JOUER
+        </p>
+
+        <div
+          id="roomInviteSender"
+          class="friend-identity">
+        </div>
+
+        <p id="roomInviteTitle"></p>
+
+        <p
+          id="roomInviteCount"
+          class="small muted">
+        </p>
+
+        <p
+          id="roomInviteMessage"
+          class="small muted"
+          role="status">
+        </p>
+
+        <div class="friend-actions">
+          <button
+            id="declineRoomInvite"
+            class="btn friend-action friend-decline"
+            type="button">
+            REFUSER
+          </button>
+
+          <button
+            id="acceptRoomInvite"
+            class="btn friend-action friend-accept"
+            type="button">
+            REJOINDRE
+          </button>
+        </div>
+      </aside>
+    `
+  );
+
+  function roomInviteAvatar(id) {
+    const avatar = CATALOG.some(
+      item => item.id === id
+    ) ? id : "chat";
+
+    return avatarHTML(avatar, 48);
+  }
+
+  function syncRoomInviteUI() {
+    if (state.screen !== "lobbyScreen") {
+      $("friendInvitePicker").hidden = true;
+
+      $("openFriendInvites").setAttribute(
+        "aria-expanded",
+        "false"
+      );
+    }
+
+    if (
+      !state.user ||
+      !state.profile ||
+      ["authScreen", "onboardScreen"]
+        .includes(state.screen)
+    ) {
+      roomInviteRows = [];
+      roomInviteOwner = null;
+      $("roomInviteNotice").hidden = true;
+    }
+  }
+
+  function renderRoomInviteNotice() {
+    const invite = roomInviteRows[0];
+
+    $("roomInviteNotice").hidden = !invite;
+
+    if (!invite) return;
+
+    $("roomInviteSender").innerHTML =
+      roomInviteAvatar(invite.sender_avatar) +
+      `<strong>${escapeHTML(invite.sender_name)}</strong>`;
+
+    $("roomInviteTitle").textContent =
+      `Rejoins « ${invite.room_title} ».`;
+
+    $("roomInviteCount").textContent =
+      roomInviteRows.length > 1
+        ? `${roomInviteRows.length} invitations en attente`
+        : "";
+
+    $("roomInviteMessage").textContent = "";
+  }
+
+  async function pollRoomInvites() {
+    syncRoomInviteUI();
+
+    const userId = state.user?.id;
+
+    if (
+      !userId ||
+      !state.profile ||
+      !state.supabase ||
+      ["authScreen", "onboardScreen"]
+        .includes(state.screen) ||
+      document.visibilityState !== "visible"
+    ) return;
+
+    if (roomInviteOwner !== userId) {
+      roomInviteOwner = userId;
+      roomInviteRows = [];
+      $("roomInviteNotice").hidden = true;
+    }
+
+    if (
+      roomInviteLoading ||
+      roomInviteBusy
+    ) return;
+
+    roomInviteLoading = true;
+
+    try {
+      const rows = await rpc(
+        "ho_room_invites_list"
+      );
+
+      if (
+        state.user?.id !== userId ||
+        roomInviteOwner !== userId ||
+        roomInviteBusy
+      ) return;
+
+      const next = Array.isArray(rows)
+        ? rows
+        : [];
+
+      if (
+        JSON.stringify(next) !==
+        JSON.stringify(roomInviteRows)
+      ) {
+        roomInviteRows = next;
+        renderRoomInviteNotice();
+      }
+    } catch (error) {
+      console.warn(
+        "Invitations :",
+        error.message
+      );
+    } finally {
+      roomInviteLoading = false;
+    }
+  }
+
+  on("openFriendInvites", "click", async () => {
+    if (
+      !state.roomId ||
+      state.room?.phase !== "lobby"
+    ) {
+      notify(
+        "Les invitations se font depuis le salon d’attente."
+      );
+      return;
+    }
+
+    const roomId = state.roomId;
+    const userId = state.user.id;
+
+    roomInvitePickerRoom = roomId;
+
+    $("friendInvitePicker").hidden = false;
+
+    $("openFriendInvites").setAttribute(
+      "aria-expanded",
+      "true"
+    );
+
+    $("friendInviteChoices").innerHTML = "";
+
+    $("friendInviteMessage").textContent =
+      "Chargement des amis…";
+
+    try {
+      const rows = await rpc(
+        "ho_friends_list"
+      );
+
+      if (
+        state.user?.id !== userId ||
+        state.roomId !== roomId ||
+        state.room?.phase !== "lobby"
+      ) return;
+
+      const friends = (
+        Array.isArray(rows) ? rows : []
+      ).filter(
+        player => player.relationship === "friend"
+      );
+
+      $("friendInviteMessage").textContent =
+        friends.length
+          ? "Choisis un ami à inviter."
+          : "Ajoute d’abord un ami depuis le menu Amis.";
+
+      $("friendInviteChoices").innerHTML =
+        friends.map(player => {
+          const alreadyHere =
+            state.room.players.some(
+              p => p.id === player.id
+            );
+
+          return `
+            <div class="friend-row room-invite-choice">
+              <div class="friend-identity">
+                ${roomInviteAvatar(player.avatar)}
+
+                <div class="friend-name">
+                  <strong>
+                    ${escapeHTML(player.username)}
+                  </strong>
+
+                  ${friendPresenceHTML(
+                    player,
+                    "friend"
+                  )}
+                </div>
+              </div>
+
+              <button
+                class="btn friend-action"
+                type="button"
+                data-invite-friend="${escapeHTML(player.id)}"
+                ${alreadyHere ? "disabled" : ""}>
+                ${alreadyHere ? "DÉJÀ ICI" : "INVITER"}
+              </button>
+            </div>
+          `;
+        }).join("");
+    } catch (error) {
+      if (
+        state.user?.id === userId &&
+        state.roomId === roomId
+      ) {
+        $("friendInviteMessage").textContent =
+          error.message;
+      }
+    }
+  });
+
+  on("closeFriendInvites", "click", () => {
+    $("friendInvitePicker").hidden = true;
+
+    $("openFriendInvites").setAttribute(
+      "aria-expanded",
+      "false"
+    );
+
+    $("openFriendInvites").focus();
+  });
+
+  $("friendInviteChoices").addEventListener(
+    "click",
+    async event => {
+      const button = event.target.closest(
+        "[data-invite-friend]"
+      );
+
+      if (
+        !button ||
+        button.disabled ||
+        !state.user
+      ) return;
+
+      if (
+        state.roomId !== roomInvitePickerRoom ||
+        state.room?.phase !== "lobby"
+      ) {
+        $("friendInviteMessage").textContent =
+          "Ce salon n’est plus disponible pour inviter.";
+        return;
+      }
+
+      const userId = state.user.id;
+      const roomId = state.roomId;
+
+      button.disabled = true;
+
+      try {
+        const result = await rpc(
+          "ho_room_invite_send",
+          {
+            p_room: roomId,
+            p_target: button.dataset.inviteFriend
+          }
+        );
+
+        if (
+          state.user?.id !== userId ||
+          state.roomId !== roomId
+        ) return;
+
+        button.textContent =
+          result === "already_here"
+            ? "DÉJÀ ICI"
+            : "ENVOYÉE";
+
+        $("friendInviteMessage").textContent =
+          result === "already_here"
+            ? "Ton ami est déjà dans le salon."
+            : result === "already_sent"
+              ? "Une invitation est déjà en attente."
+              : "Invitation envoyée !";
+      } catch (error) {
+        if (
+          state.user?.id === userId &&
+          state.roomId === roomId
+        ) {
+          button.disabled = false;
+
+          $("friendInviteMessage").textContent =
+            error.message;
+        }
+      }
+    }
+  );
+
+  async function replyRoomInvite(accept) {
+    const invite = roomInviteRows[0];
+
+    if (
+      !invite ||
+      roomInviteBusy ||
+      !state.user
+    ) return;
+
+    if (
+      accept &&
+      state.roomId &&
+      state.roomId !== invite.room_id
+    ) {
+      $("roomInviteMessage").textContent =
+        "Quitte d’abord ton salon actuel, puis appuie sur Rejoindre.";
+      return;
+    }
+
+    const userId = state.user.id;
+
+    roomInviteBusy = true;
+
+    $("acceptRoomInvite").disabled = true;
+    $("declineRoomInvite").disabled = true;
+
+    $("roomInviteMessage").textContent =
+      accept
+        ? "Connexion au salon…"
+        : "Refus en cours…";
+
+    try {
+      const roomId = await rpc(
+        "ho_room_invite_reply",
+        {
+          p_invite: invite.id,
+          p_accept: accept
+        }
+      );
+
+      if (state.user?.id !== userId) return;
+
+      roomInviteRows = roomInviteRows.filter(
+        row => row.id !== invite.id
+      );
+
+      renderRoomInviteNotice();
+
+      if (accept && roomId) {
+        state.roomId = roomId;
+        state.room = null;
+        state.lastHeartbeat = 0;
+
+        rememberRoom();
+
+        $("lobbyPlayers").innerHTML = "";
+        $("roomCode").textContent = "…";
+
+        $("lobbyTitle").textContent =
+          "Connexion au salon…";
+
+        $("startRoom").disabled = true;
+        $("toggleReady").disabled = true;
+
+        showScreen("lobbyScreen");
+        startRefresh();
+
+        try {
+          await refreshRoom();
+        } finally {
+          $("toggleReady").disabled = false;
+        }
+      }
+    } catch (error) {
+      if (state.user?.id === userId) {
+        $("roomInviteMessage").textContent =
+          error.message;
+      }
+    } finally {
+      roomInviteBusy = false;
+
+      $("acceptRoomInvite").disabled = false;
+      $("declineRoomInvite").disabled = false;
+
+      pollRoomInvites();
+    }
+  }
+
+  on("acceptRoomInvite", "click", () =>
+    replyRoomInvite(true)
+  );
+
+  on("declineRoomInvite", "click", () =>
+    replyRoomInvite(false)
+  );
+
+  setInterval(pollRoomInvites, 5000);
+
+  document.addEventListener(
+    "visibilitychange",
+    () => {
+      if (
+        document.visibilityState === "visible"
+      ) {
+        pollRoomInvites();
+      }
+    }
+  );
   on("shareRoom", "click", async () => {
     const message =
       `Rejoins ma partie HIDEOUT ! ` +
