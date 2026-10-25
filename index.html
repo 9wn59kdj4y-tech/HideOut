@@ -5498,6 +5498,151 @@ const hoSettingsGroups = [
     </label>`;
   }
 
+  // NE PAS DÉRANGER — réglage enregistré sur le compte.
+
+  let dndOwner = null;
+  let dndValue = false;
+  let dndLoaded = false;
+  let dndBusy = false;
+  let dndVersion = 0;
+
+  function updateDndControl(message = "") {
+    const input = $("prefs").querySelector(
+      '[data-pref="doNotDisturb"]'
+    );
+
+    if (!input) return;
+
+    const own = dndOwner === state.user?.id;
+
+    input.checked = own && dndValue;
+    input.disabled = !own || !dndLoaded || dndBusy;
+
+    const status = $("dndStatus");
+
+    if (status) {
+      status.textContent = message ||
+        "Bloque les invitations aux salons. Les demandes d’amis restent disponibles.";
+    }
+  }
+
+  async function loadDoNotDisturb() {
+    const userId = state.user?.id;
+
+    if (!userId || dndBusy) return;
+
+    if (dndOwner !== userId) {
+      dndOwner = userId;
+      dndValue = false;
+    }
+
+    const version = ++dndVersion;
+
+    dndLoaded = false;
+    updateDndControl("Chargement…");
+
+    try {
+      const value = await rpc(
+        "ho_invite_preferences"
+      );
+
+      if (
+        state.user?.id !== userId ||
+        version !== dndVersion
+      ) return;
+
+      dndValue = value === true;
+      dndLoaded = true;
+
+      updateDndControl();
+    } catch (error) {
+      if (
+        state.user?.id === userId &&
+        version === dndVersion
+      ) {
+        updateDndControl(
+          "Chargement impossible. Rouvre les paramètres pour réessayer."
+        );
+
+        console.warn(
+          "Ne pas déranger :",
+          error.message
+        );
+      }
+    }
+  }
+
+  async function saveDoNotDisturb(input) {
+    const userId = state.user?.id;
+
+    if (
+      !userId ||
+      dndOwner !== userId ||
+      !dndLoaded ||
+      dndBusy
+    ) {
+      updateDndControl();
+      return;
+    }
+
+    const wanted = input.checked;
+    const version = ++dndVersion;
+
+    dndBusy = true;
+    updateDndControl("Enregistrement…");
+
+    try {
+      const value = await rpc(
+        "ho_invite_preferences",
+        { p_dnd: wanted }
+      );
+
+      if (
+        state.user?.id !== userId ||
+        version !== dndVersion
+      ) return;
+
+      dndValue = value === true;
+
+      if (dndValue) {
+        roomInviteRows = [];
+        renderRoomInviteNotice();
+      }
+
+      updateDndControl(
+        dndValue
+          ? "Ne pas déranger activé : les invitations aux salons sont bloquées."
+          : "Ne pas déranger désactivé : tu peux recevoir de nouvelles invitations."
+      );
+    } catch (error) {
+      if (
+        state.user?.id === userId &&
+        version === dndVersion
+      ) {
+        updateDndControl(
+          "Modification non enregistrée : " +
+          error.message
+        );
+      }
+    } finally {
+      dndBusy = false;
+
+      const current = $("prefs").querySelector(
+        '[data-pref="doNotDisturb"]'
+      );
+
+      if (current) {
+        current.disabled =
+          !dndLoaded ||
+          dndOwner !== state.user?.id;
+
+        current.checked =
+          dndOwner === state.user?.id &&
+          dndValue;
+      }
+    }
+  }
+ 
   function renderPreferences() {
     const prefs = $("prefs");
     const vibrationAvailable = typeof navigator.vibrate === "function";
