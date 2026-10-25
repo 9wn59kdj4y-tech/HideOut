@@ -1765,7 +1765,127 @@ h3 {
 
 /* AMIS */
 
-#homeScreen .friends-menu-icon {
+.friends-live-list {
+  display: grid;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.friends-section-title {
+  margin: 26px 0 0;
+  font-size: 19px;
+}
+
+.friend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 18px;
+}
+
+.friend-identity {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-width: 0;
+}
+
+.friend-name {
+  display: grid;
+  gap: 5px;
+  min-width: 0;
+}
+
+.friend-name strong {
+  overflow-wrap: anywhere;
+}
+
+.friend-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.friend-actions .friend-action {
+  width: auto;
+  min-height: 44px;
+  padding: 10px 14px;
+  font-size: 12px;
+}
+
+.friend-action.friend-accept {
+  color: #82E3AB;
+  border-color: #337A51;
+  background: #163423;
+}
+
+.friend-action.friend-decline {
+  color: #FF9299;
+  border-color: #88464B;
+  background: #3C2023;
+}
+
+.friend-already {
+  color: #82E3AB;
+  font-size: 13px;
+}
+
+.friend-profile summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  cursor: pointer;
+  list-style: none;
+}
+
+.friend-profile summary::-webkit-details-marker {
+  display: none;
+}
+
+.friend-open {
+  flex-shrink: 0;
+  color: #FFAC59;
+  font-size: 12px;
+}
+
+.friend-profile[open] {
+  border-color: #9B6231;
+}
+
+.friend-profile-body {
+  margin-top: 22px;
+  padding-top: 18px;
+  border-top: 1px solid #383838;
+}
+
+.friend-profile-body .friend-actions {
+  margin-top: 20px;
+}
+
+.friend-profile-body .friend-xp {
+  color: #FFAC59;
+  font-weight: 750;
+}
+
+#friendsActionStatus:empty,
+#friendsStatus:empty,
+#friendsSearchStatus:empty {
+  display: none;
+}
+
+@media (max-width: 420px) {
+  .friend-row .friend-actions {
+    width: 100%;
+  }
+
+  .friend-profile summary {
+    flex-wrap: wrap;
+  }
+}
+  #homeScreen .friends-menu-icon {
   display: block;
   width: 29px;
   height: 29px;
