@@ -3851,6 +3851,68 @@ function notify(message, type = "info") {
   // 5. NAVIGATION
   // ==========================================================
 
+// Navigation des onglets Amis
+
+  function selectFriendsTab(name, focus = false) {
+    const names = ["list", "sent", "received"];
+
+    if (!names.includes(name)) return;
+
+    names.forEach(tabName => {
+      const selected = tabName === name;
+      const tab = $("friendsTab-" + tabName);
+      const panel = $("friendsPanel-" + tabName);
+
+      tab.setAttribute(
+        "aria-selected",
+        String(selected)
+      );
+
+      tab.tabIndex = selected ? 0 : -1;
+      panel.hidden = !selected;
+
+      if (selected && focus) {
+        tab.focus();
+      }
+    });
+  }
+
+  $$("[data-friends-tab]").forEach(tab => {
+    tab.addEventListener("click", () => {
+      selectFriendsTab(tab.dataset.friendsTab);
+    });
+
+    tab.addEventListener("keydown", event => {
+      const names = ["list", "sent", "received"];
+      const index = names.indexOf(
+        tab.dataset.friendsTab
+      );
+
+      let next;
+
+      if (event.key === "ArrowRight") {
+        next = (index + 1) % names.length;
+      }
+
+      if (event.key === "ArrowLeft") {
+        next = (index + names.length - 1) % names.length;
+      }
+
+      if (event.key === "Home") {
+        next = 0;
+      }
+
+      if (event.key === "End") {
+        next = names.length - 1;
+      }
+
+      if (next === undefined) return;
+
+      event.preventDefault();
+      selectFriendsTab(names[next], true);
+    });
+  });
+ 
   function showScreen(id) {
     $$(".screen, .game-screen, .full-game-overlay")
       .forEach(screen => {
