@@ -1124,7 +1124,81 @@ h3 {
         text-align: center;
 }
 
-.player-row {
+.lobby-player-name {
+  display: flex;
+  align-items: center;
+  overflow: visible;
+}
+
+.lobby-player-label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.lobby-friend-controls {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+
+.lobby-friend-control {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--orange);
+  vertical-align: middle;
+}
+
+.lobby-friend-control::before {
+  content: "";
+  position: absolute;
+  inset: 6px;
+  border: 1px solid currentColor;
+  border-radius: 7px;
+  background: #1C1C1C;
+}
+
+.lobby-friend-control svg {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+button.lobby-friend-control {
+  cursor: pointer;
+}
+
+.lobby-friend-control:disabled {
+  opacity: .45;
+  cursor: wait;
+}
+
+.lobby-friend-control.is-green {
+  color: var(--success);
+}
+
+.lobby-friend-control.is-red {
+  color: var(--danger);
+}
+
+.lobby-friend-control.is-muted {
+  color: var(--muted);
+}
+      .player-row {
         display: flex;
         align-items: center;
         gap: 12px;
