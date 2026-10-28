@@ -60,6 +60,7 @@
   function preload(file) {
     return new Promise((resolve, reject) => {
       const img = new Image();
+      img.fetchPriority = "high";
       const timer = setTimeout(() => {
         img.onload = img.onerror = null;
         reject(new Error("Chargement du fond trop long : " + file));
@@ -71,8 +72,20 @@
   }
 
   function display(file) {
-    root.style.setProperty("--hideout-intro-image", `url("${file}")`);
+  root.style.setProperty("--hideout-intro-image", `url("${file}")`);
+
+  const cycle = readCycle();
+
+  if (!cycle.remaining.length) {
+    cycle.order = shuffle(cycle.order, cycle.last);
+    cycle.remaining = cycle.order.slice();
+    saveCycle(cycle);
   }
+
+  const nextImage = new Image();
+  nextImage.fetchPriority = "low";
+  nextImage.src = cycle.remaining[0];
+}
 
   async function choose() {
     // Un refresh pendant l'intro conserve le même fond.
