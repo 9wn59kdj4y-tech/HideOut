@@ -680,9 +680,13 @@ h3 {
   opacity: 1 !important;
 }
 
+#intro .logo-split {
+  position: relative;
+  flex-shrink: 0;
+}
+
 #intro.animate .logo-split {
-  opacity: 0 !important;
-  transition: opacity .3s ease !important;
+  opacity: 1 !important;
 }
 
 #intro.animate .intro-center .muted {
@@ -726,9 +730,8 @@ h3 {
   border-color: white !important;
 }
 
-#intro::after {
+#intro .logo-split::after {
   content: "";
-  display: block !important;
   position: absolute;
   left: 50%;
   top: 50%;
@@ -738,13 +741,13 @@ h3 {
   box-shadow:
     0 0 14px 3px rgba(255,255,255,.85),
     0 0 40px 8px rgba(255,255,255,.35);
-  transform: translate(-50%, -50%) rotate(30deg);
+  transform: translate(-50%, -50%);
   opacity: 0;
-  z-index: 100001;
+  z-index: 1;
   pointer-events: none;
 }
 
-#intro.animate::after {
+#intro.animate .logo-split::after {
   animation: hideoutSlash 1.2s ease-in forwards;
 }
 
