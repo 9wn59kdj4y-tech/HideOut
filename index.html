@@ -7019,6 +7019,216 @@ const dnd = player.doNotDisturb === true;
   // 13. AFFICHAGE DU SALON
   // ==========================================================
 
+  let lobbyFriendsOwner = null;
+let lobbyFriendsRows = [];
+let lobbyFriendsLoaded = false;
+let lobbyFriendsChecked = 0;
+let lobbyFriendsRequest = null;
+
+async function loadLobbyFriends(force = false) {
+  const userId = state.user?.id;
+  if (!userId) return;
+
+  if (lobbyFriendsOwner !== userId) {
+    lobbyFriendsOwner = userId;
+    lobbyFriendsRows = [];
+    lobbyFriendsLoaded = false;
+    lobbyFriendsChecked = 0;
+    lobbyFriendsRequest = null;
+  }
+
+  if (lobbyFriendsRequest) {
+    if (force) {
+      await lobbyFriendsRequest;
+
+      if (
+        state.user?.id === userId &&
+        lobbyFriendsOwner === userId
+      ) {
+        return loadLobbyFriends(true);
+      }
+    }
+    return;
+  }
+
+  if (
+    !force &&
+    (friendsBusy || Date.now() - lobbyFriendsChecked < 10000)
+  ) return;
+
+  lobbyFriendsChecked = Date.now();
+
+  const request = rpc("ho_friends_list")
+    .then(rows => {
+      if (
+        state.user?.id !== userId ||
+        lobbyFriendsOwner !== userId ||
+        lobbyFriendsRequest !== request
+      ) return;
+
+      lobbyFriendsRows = Array.isArray(rows) ? rows : [];
+      lobbyFriendsLoaded = true;
+    })
+    .catch(error => {
+      console.warn("Amis du salon :", error);
+    })
+    .finally(() => {
+      if (
+        lobbyFriendsOwner !== userId ||
+        lobbyFriendsRequest !== request
+      ) return;
+
+      lobbyFriendsRequest = null;
+
+      if (
+        state.user?.id === userId &&
+        state.screen === "lobbyScreen" &&
+        state.room?.phase === "lobby"
+      ) {
+        renderLobby();
+      }
+    });
+
+  lobbyFriendsRequest = request;
+  await request;
+}
+
+function lobbyFriendButtons(player) {
+  const userId = state.user?.id;
+  if (!userId || player.id === userId) return "";
+
+  const person = `
+    <circle cx="8" cy="7" r="3"/>
+    <path d="M2 20v-2a6 6 0 0 1 12 0"/>
+  `;
+
+  const icons = {
+    add: person + '<path d="M19 8v8M15 12h8"/>',
+    sent: person + `
+      <circle cx="18" cy="17" r="4"/>
+      <path d="M18 15v2l1 1"/>
+    `,
+    friend: person + '<path d="m15 13 3 3 5-6"/>',
+    accept: '<path d="m5 12 4 4L19 6"/>',
+    decline: '<path d="m6 6 12 12M18 6 6 18"/>',
+    wait: `
+      <circle cx="12" cy="12" r="8"/>
+      <path d="M12 7v5l3 2"/>
+    `
+  };
+
+  const box = (icon, label, action = "", tone = "") => {
+    const tag = action ? "button" : "span";
+
+    return `
+      <${tag}
+        class="lobby-friend-control ${tone}"
+        title="${label}"
+        aria-label="${label}"
+        ${action
+          ? `type="button"
+             data-lobby-friend="${escapeHTML(player.id)}"
+             data-lobby-action="${action}"
+             ${friendsBusy ? "disabled" : ""}`
+          : 'role="img"'}>
+        <svg viewBox="0 0 24 24" aria-hidden="true">
+          ${icons[icon]}
+        </svg>
+      </${tag}>
+    `;
+  };
+
+  let controls;
+
+  if (lobbyFriendsOwner !== userId || !lobbyFriendsLoaded) {
+    controls = box(
+      "wait", "Vérification des amis", "", "is-muted"
+    );
+  } else {
+    const relationship = lobbyFriendsRows.find(
+      p => p.id === player.id
+    )?.relationship;
+
+    if (relationship === "friend") {
+      controls = box(
+        "friend", "Déjà amis", "", "is-green"
+      );
+    } else if (relationship === "sent") {
+      controls = box(
+        "sent", "Demande envoyée", "", "is-muted"
+      );
+    } else if (relationship === "received") {
+      controls =
+        box("accept", "Accepter la demande", "accept", "is-green") +
+        box("decline", "Refuser la demande", "decline", "is-red");
+    } else {
+      controls = box("add", "Ajouter en ami", "send");
+    }
+  }
+
+  return `
+    <span class="lobby-friend-controls">
+      ${controls}
+    </span>
+  `;
+}
+
+on("lobbyPlayers", "click", async event => {
+  const button = event.target.closest("[data-lobby-action]");
+
+  if (
+    !button ||
+    friendsBusy ||
+    state.screen !== "lobbyScreen" ||
+    state.room?.phase !== "lobby" ||
+    !state.user
+  ) return;
+
+  const target = button.dataset.lobbyFriend;
+  const action = button.dataset.lobbyAction;
+  const userId = state.user.id;
+
+  if (
+    target === userId ||
+    !state.room.players.some(p => p.id === target) ||
+    !["send", "accept", "decline"].includes(action)
+  ) return;
+
+  friendsBusy = true;
+  renderLobby();
+
+  try {
+    const result = await rpc("ho_friends_action", {
+      p_target: target,
+      p_action: action
+    });
+
+    if (state.user?.id !== userId) return;
+
+    const messages = {
+      sent: "Demande envoyée.",
+      accepted: "Ami ajouté !",
+      declined: "Demande refusée.",
+      already_friends: "Vous êtes déjà amis.",
+      already_sent: "Demande déjà envoyée.",
+      request_received: "Ce joueur t’a envoyé une demande."
+    };
+
+    notify(messages[result] || "Action effectuée.");
+    await loadLobbyFriends(true);
+  } finally {
+    friendsBusy = false;
+
+    if (
+      state.user?.id === userId &&
+      state.screen === "lobbyScreen" &&
+      state.room?.phase === "lobby"
+    ) {
+      renderLobby();
+    }
+  }
+});
+  
   function renderLobby() {
     const room = state.room;
     if (!room) return;
