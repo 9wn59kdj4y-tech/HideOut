@@ -7232,6 +7232,7 @@ on("lobbyPlayers", "click", async event => {
   function renderLobby() {
     const room = state.room;
     if (!room) return;
+    loadLobbyFriends();
     $("lobbyTitle").textContent =
       room.title;
     $("roomCode").textContent =
