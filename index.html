@@ -7252,14 +7252,18 @@ on("lobbyPlayers", "click", async event => {
           ${avatarHTML(player.avatar, 44)}
 
           <div class="player-info">
-            <div class="player-name">
-              ${escapeHTML(player.name)}
-              ${
-                player.host
-                  ? '<span class="host-crown">♛</span>'
-                  : ""
-              }
-            </div>
+          <div class="player-name lobby-player-name">
+  <span class="lobby-player-label">
+    ${escapeHTML(player.name)}
+    ${
+      player.host
+        ? '<span class="host-crown">♛</span>'
+        : ""
+    }
+  </span>
+
+  ${lobbyFriendButtons(player)}
+</div>
 
             <div class="player-detail">
               ${
